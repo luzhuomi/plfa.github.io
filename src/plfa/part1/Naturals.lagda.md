@@ -525,6 +525,21 @@ Compute `3 * 4`, writing out your reasoning as a chain of equations, using the e
 
 ```agda
 -- Your code goes here
+-- _ : 3 * 4 ≡ 12
+_ =
+  begin
+    3 * 4
+  ≡⟨⟩ 
+    4 + (2 * 4)
+  ≡⟨⟩
+    4 + (4 + (1 * 4))
+  ≡⟨⟩
+    4 + (4 + (4 + (0 * 4)))
+  ≡⟨⟩
+    4 + (4 + (4 + 0))
+  ≡⟨⟩
+    12
+  ∎
 ```
 
 
@@ -539,6 +554,33 @@ Check that `3 ^ 4` is `81`.
 
 ```agda
 -- Your code goes here
+_^_ : ℕ → ℕ → ℕ
+m ^ zero    = suc zero    -- base case
+m ^ (suc n) = m * (m ^ n) -- inductive case
+
+
+_ : 3 ^ 4 ≡ 81
+_ =
+  begin
+    3 ^ 4
+  ≡⟨⟩
+    3 * (3 ^ 3)
+    -- inductive case 
+  ≡⟨⟩
+    3 * (3 * (3 ^ 2))
+    -- inductive case 
+  ≡⟨⟩
+    3 * (3 * (3 * (3 ^ 1)))
+    -- inductive case
+  ≡⟨⟩
+    3 * (3 * (3 * (3 * (3 ^ 0))))
+    -- base case
+  ≡⟨⟩
+    3 * (3 * (3 * (3 * 1)))
+  ≡⟨⟩
+    81
+  ∎ 
+
 ```
 
 
