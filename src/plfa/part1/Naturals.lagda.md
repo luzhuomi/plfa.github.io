@@ -1041,10 +1041,40 @@ Confirm that these both give the correct answer for zero through four.
 ```agda
 -- Your code goes here
 inc : Bin → Bin
-inc ⟨⟩ = ⟨⟩ I
+inc ⟨⟩    = ⟨⟩ I
 inc (b O) = b I
 inc (b I) = (inc b) O
 ```
+
+
+```agda
+_ : inc (⟨⟩ I O I I ) ≡ ⟨⟩ I I O O
+_ =
+  begin
+    inc (⟨⟩ I O I I)
+  ≡⟨⟩
+    (inc (⟨⟩ I O I)) O
+  ≡⟨⟩
+    ((inc (⟨⟩ I O)) O) O
+  ≡⟨⟩
+    ((⟨⟩ I I) O) O
+  ≡⟨⟩
+    ⟨⟩ I I O O
+  ∎
+```
+
+```agda
+to : ℕ → Bin
+to zero = ⟨⟩
+to (suc n) = inc (to n)
+
+from : Bin → ℕ
+from ⟨⟩    = 0
+from (b O) = (from b) * 2
+-- from (b I) = (from (b O) + 1 -- this won't pass the termination check
+from (b I) = ((from b) * 2) + 1
+```
+
 
 
 ## Standard library

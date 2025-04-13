@@ -36,7 +36,7 @@ open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_; _^_)
 Operators pop up all the time, and mathematicians have agreed
 on names for some of the most common properties.
 
-* _Identity_.   Operator `+` has left identity `0` if `0 + n ≡ n`, and
+* _Identity_.   Operator `+` has left identity ``0 if `0 + n ≡ n`, and
   right identity `0` if `n + 0 ≡ n`, for all `n`. A value that is both
   a left and right identity is just called an identity. Identity is also
   sometimes called _unit_.
