@@ -1,4 +1,4 @@
-module plfa.part1.Test where
+module plfa.part1.TestNatural where
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl)
@@ -42,5 +42,10 @@ _ =
   ≡⟨⟩
     3
   ∎
+
+
+_++_ : ℕ → ℕ → ℕ
+zero ++ n = n
+suc m ++ n = suc (m ++ n)
 
 

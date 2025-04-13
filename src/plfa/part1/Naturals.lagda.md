@@ -1040,6 +1040,10 @@ Confirm that these both give the correct answer for zero through four.
 
 ```agda
 -- Your code goes here
+inc : Bin → Bin
+inc ⟨⟩ = ⟨⟩ I
+inc (b O) = b I
+inc (b I) = (inc b) O
 ```
 
 
