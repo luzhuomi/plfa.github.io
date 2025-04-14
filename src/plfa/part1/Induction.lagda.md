@@ -416,6 +416,8 @@ Our first lemma states that zero is also a right-identity:
 
 Here is the lemma's statement and proof:
 ```agda
+-- by definition of _+_ we only have left identity for zero
+
 +-identityʳ : ∀ (m : ℕ) → m + zero ≡ m
 +-identityʳ zero =
   begin
@@ -483,6 +485,8 @@ Our second lemma does the same for `suc` on the second argument:
 
 Here is the lemma's statement and proof:
 ```agda
+-- assoc between a + and a suc
+
 +-suc : ∀ (m n : ℕ) → m + suc n ≡ suc (m + n)
 +-suc zero n =
   begin
@@ -553,6 +557,7 @@ Finally, here is our proposition's statement and proof:
     m
   ≡⟨⟩
     zero + m
+    -- by definition of _+_, which only defines the left identity
   ∎
 +-comm m (suc n) =
   begin
@@ -563,6 +568,7 @@ Finally, here is our proposition's statement and proof:
     suc (n + m)
   ≡⟨⟩
     suc n + m
+    -- by definition of _+_
   ∎
 ```
 The first line states that we are defining the identifier
