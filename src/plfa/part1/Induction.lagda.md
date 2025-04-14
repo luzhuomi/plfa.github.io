@@ -725,6 +725,13 @@ first four days using a finite story of creation, as
 
 ```agda
 -- Your code goes here
+-- On the first day, we know about associativity of 0.
+0+-assoc : ∀ (n p : ℕ) → (0 + n) + p ≡ 0 + (n + p)
+0+-assoc n p = refl
+
+-- On the second day, we know about associativity of 1.
+1+-assoc : ∀ (n p : ℕ) → (1 + n) + p ≡ 1 + (n + p)
+1+-assoc n p = refl
 ```
 
 ## Associativity with rewrite
