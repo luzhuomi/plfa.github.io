@@ -400,7 +400,6 @@ Another important property of addition is that it is _commutative_, that is,
 that the order of the operands does not matter:
 
     m + n ≡ n + m
-
 The proof requires that we first demonstrate two lemmas.
 
 ### The first lemma
@@ -724,14 +723,39 @@ first four days using a finite story of creation, as
 [earlier](/Naturals/#finite-creation).
 
 ```agda
--- Your code goes here
--- On the first day, we know about associativity of 0.
-0+-assoc : ∀ (n p : ℕ) → (0 + n) + p ≡ 0 + (n + p)
-0+-assoc n p = refl
 
--- On the second day, we know about associativity of 1.
-1+-assoc : ∀ (n p : ℕ) → (1 + n) + p ≡ 1 + (n + p)
-1+-assoc n p = refl
+-- Your code goes here
+-- On the first day, we know zero
+
+
+-- On the second day, we know one and all associativity of 0.
+assoc+-0 : (0 + 0) + 0 ≡ 0 + (0 + 0)
+assoc+-0 =
+  begin
+    (0 + 0) + 0
+  ≡⟨⟩ 0 + 0
+  ≡⟨⟩ 0 + (0 + 0)
+  ∎
+
+-- On the third day, we know two and all associativity of 1.
+-- (0 + 0) + 1 = 0 + (0 + 1)    (0 + 1) + 0 = 0 + (1 + 0)    (1 + 0) + 0 = 1 + (0 + 0)
+-- (0 + 1) + 1 = 0 + (1 + 1)    (1 + 0) + 1 = 1 + (0 + 1)    (1 + 1) + 0 = 1 + (1 + 0)
+-- (1 + 1) + 1 = 1 + (1 + 1)
+assoc+-0-0-1 : (0 + 0) + 1 ≡ 0 + (0 + 1)
+assoc+-0-0-1 =
+  begin
+    (0 + 0) + 1
+  ≡⟨⟩ 0 + 1
+  ≡⟨⟩ 0 + (0 + 1)
+  ∎
+
+assoc+-1-0-0 : (1 + 0) + 0 ≡ 1 + (0 + 0)
+assoc+-1-0-0 =
+  begin
+    (1 + 0) + 0
+  ≡⟨⟩ 1 + 0
+  ≡⟨⟩ 1 + (0 + 0)
+  ∎
 ```
 
 ## Associativity with rewrite
@@ -904,8 +928,10 @@ is associative and commutative.
 
 ```agda
 -- Your code goes here
++-swap : ∀ (m n p : ℕ) → m + (n + p) ≡ n + (m + p)
++-swap zero n p = refl
++-swap (suc m) n p rewrite +-assoc m n p | +-comm n p | sym (+-assoc m p n) | +-comm (suc (m + p)) n = refl
 ```
-
 
 #### Exercise `*-distrib-+` (recommended) {#times-distrib-plus}
 
@@ -917,6 +943,14 @@ for all naturals `m`, `n`, and `p`.
 
 ```agda
 -- Your code goes here
+-- sub lemma
++-rearrange-3 : ∀ (m n p : ℕ) → m + (n + p) ≡ m + n + p
++-rearrange-3 zero n p = refl
++-rearrange-3 (suc m) n p rewrite +-rearrange-3 m n p = refl
+
+*-distrib-+ : ∀ (m n p : ℕ) → (m + n) * p ≡ m * p + n * p
+*-distrib-+ zero n p = refl
+*-distrib-+ (suc m) n p rewrite sym (+-assoc p (m * p) (n * p)) | *-distrib-+ m n p | +-rearrange-3 p (m * p) (n * p) = refl
 ```
 
 
@@ -930,6 +964,9 @@ for all naturals `m`, `n`, and `p`.
 
 ```agda
 -- Your code goes here
+*-assoc : ∀ (m n p : ℕ) → (m * n) * p ≡ m * (n * p)
+*-assoc zero n p    = refl
+*-assoc (suc m) n p rewrite *-distrib-+ n (m * n) p | *-assoc m n p = refl
 ```
 
 
@@ -943,7 +980,47 @@ for all naturals `m` and `n`.  As with commutativity of addition,
 you will need to formulate and prove suitable lemmas.
 
 ```agda
+
+-- sub lemma 
+*-n-zero : ∀ (n : ℕ ) → n * 0 ≡ 0
+*-n-zero zero = refl
+*-n-zero (suc n) rewrite *-n-zero n = refl
+
+-- sub lemma
+*-identity : ∀ (n : ℕ) → n * 1 ≡ n
+*-identity zero = refl
+*-identity (suc n) rewrite *-identity n = refl
+
+
+-- sub lemma
+*-distrib-+-l : ∀ (p m n : ℕ) → p * (m + n) ≡ p * m + p * n
+*-distrib-+-l zero m n = refl
+*-distrib-+-l (suc p) m n rewrite *-distrib-+-l p m n
+  | +-rearrange-3 (m + n) (p * m) (p * n)
+  | +-comm (p * m) n = {!!}
+
 -- Your code goes here
+*-comm : ∀ (m n : ℕ) → m * n ≡ n * m
+*-comm zero n rewrite *-n-zero n = refl
+*-comm (suc m) n rewrite sym (*-distrib-+ 1 m n) | *-comm m n = {!!}
+
+{-
+*-comm (succ m) n =
+  begin
+    (suc m) * n -- goal n * (suc m)
+  ≡⟨⟩
+    n + (m * n)
+  ≡⟨cong (n + _) (*-comm m n)⟩
+    n + (n * m)
+  ≡⟨*-identity⟩
+    (n * 1) + (n * m)
+  ≡⟨cong (_ + (n * m)) (*-comm n 1)⟩
+    (1 * n) + (n * m)
+  ≡⟨cong ((1 * n) + _) (*-comm n m)⟩
+    (1 * n) + (m * n)  
+  ≡⟨*-distrib-+ 1 m n⟩
+    (1 + m) * n
+-}
 ```
 
 
