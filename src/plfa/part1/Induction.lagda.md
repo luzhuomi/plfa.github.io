@@ -1014,6 +1014,7 @@ you will need to formulate and prove suitable lemmas.
     | sym (*-distrib-+-l n 1 m)
     = refl
 {-
+-- the unabridged version 
 *-comm (suc m) n =
   begin
     (suc m) * n    
@@ -1044,6 +1045,9 @@ for all naturals `n`. Did your proof require induction?
 
 ```agda
 -- Your code goes here
+∸-zero : ∀ (n : ℕ) → 0 ∸ n ≡ 0
+∸-zero zero = refl
+∸-zero (suc n) = refl
 ```
 
 
@@ -1057,6 +1061,23 @@ for all naturals `m`, `n`, and `p`.
 
 ```agda
 -- Your code goes here
+∸-+-assoc : ∀ (m n p : ℕ) → m ∸ n ∸ p ≡ m ∸ (n + p)
+∸-+-assoc m zero p =
+  begin
+    m ∸ zero ∸ p
+  ≡⟨⟩
+    m ∸ p
+  ≡⟨ cong (m ∸_) (sym (+-identityʳ p)) ⟩
+    m ∸ (p + 0)
+  ≡⟨ cong (m ∸_) (+-comm p 0) ⟩
+    m ∸ (0 + p)
+  ∎
+    
+∸-+-assoc m (suc n) p =
+  begin
+    m ∸ (suc n) ∸ p
+  ≡⟨⟩
+    
 ```
 
 
