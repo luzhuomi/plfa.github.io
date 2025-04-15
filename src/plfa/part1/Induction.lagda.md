@@ -947,6 +947,8 @@ for all naturals `m`, `n`, and `p`.
 +-rearrange-3 : ∀ (m n p : ℕ) → m + (n + p) ≡ m + n + p
 +-rearrange-3 zero n p = refl
 +-rearrange-3 (suc m) n p rewrite +-rearrange-3 m n p = refl
+-- +-rearrange-3 m n p rewrite (sym +-assoc m n p) = refl
+
 
 *-distrib-+ : ∀ (m n p : ℕ) → (m + n) * p ≡ m * p + n * p
 *-distrib-+ zero n p = refl
@@ -987,41 +989,49 @@ you will need to formulate and prove suitable lemmas.
 *-n-zero (suc n) rewrite *-n-zero n = refl
 
 -- sub lemma
-*-identity : ∀ (n : ℕ) → n * 1 ≡ n
+*-identity : ∀ (n : ℕ) → n * 1 ≡ n 
 *-identity zero = refl
 *-identity (suc n) rewrite *-identity n = refl
+
 
 
 -- sub lemma
 *-distrib-+-l : ∀ (p m n : ℕ) → p * (m + n) ≡ p * m + p * n
 *-distrib-+-l zero m n = refl
 *-distrib-+-l (suc p) m n rewrite *-distrib-+-l p m n
-  | +-rearrange-3 (m + n) (p * m) (p * n)
-  | +-comm (p * m) n = {!!}
+  | +-rearrange m n (p * m) (p * n)
+  | +-comm n (p * m)
+  | +-rearrange-3 m (p * m) n
+  | sym (+-rearrange-3 (m + (p * m)) n (p * n))
+  = refl
+
 
 -- Your code goes here
 *-comm : ∀ (m n : ℕ) → m * n ≡ n * m
 *-comm zero n rewrite *-n-zero n = refl
-*-comm (suc m) n rewrite sym (*-distrib-+ 1 m n) | *-comm m n = {!!}
-
+*-comm (suc m) n rewrite (*-comm m n)
+    | cong ( _+(n * m)) (sym (*-identity n))
+    | sym (*-distrib-+-l n 1 m)
+    = refl
 {-
-*-comm (succ m) n =
+*-comm (suc m) n =
   begin
-    (suc m) * n -- goal n * (suc m)
+    (suc m) * n    
   ≡⟨⟩
     n + (m * n)
-  ≡⟨cong (n + _) (*-comm m n)⟩
+  ≡⟨ cong (n +_) (*-comm m n) ⟩
     n + (n * m)
-  ≡⟨*-identity⟩
-    (n * 1) + (n * m)
-  ≡⟨cong (_ + (n * m)) (*-comm n 1)⟩
-    (1 * n) + (n * m)
-  ≡⟨cong ((1 * n) + _) (*-comm n m)⟩
-    (1 * n) + (m * n)  
-  ≡⟨*-distrib-+ 1 m n⟩
-    (1 + m) * n
--}
+  ≡⟨ cong ( _+(n * m)) (sym (*-identity n)) ⟩
+   (n * 1) + (n * m)
+  ≡⟨ sym (*-distrib-+-l n 1 m) ⟩
+   n * (1 + m)
+  ≡⟨⟩ 
+   n * (suc m)
+  ∎
+-}  
 ```
+
+
 
 
 #### Exercise `0∸n≡0` (practice) {#zero-monus}
