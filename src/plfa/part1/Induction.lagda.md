@@ -1201,6 +1201,125 @@ For each law: if it holds, prove; if not, give a counterexample.
 
 ```agda
 -- Your code goes here
+data Bin : Set where
+  ⟨⟩ : Bin
+  _O : Bin → Bin
+  _I : Bin → Bin
+
+inc : Bin → Bin
+inc ⟨⟩    = ⟨⟩ I
+inc (b O) = b I
+inc (b I) = (inc b) O
+
+to : ℕ → Bin
+to zero = ⟨⟩
+to (suc n) = inc (to n)
+
+from : Bin → ℕ
+from ⟨⟩    = 0
+from (b O) = (from b) * 2
+from (b I) = ((from b) * 2) + 1
+
+bin-law-1 : ∀ (b : Bin) → from (inc b) ≡ suc (from b)
+bin-law-1 ⟨⟩ = refl
+bin-law-1 (b O) =
+  begin
+    from (inc (b O))
+  ≡⟨⟩
+    from (b I)
+  ≡⟨⟩
+    ((from b) * 2) + 1
+  ≡⟨ +-comm ((from b) * 2) 1 ⟩
+    1 + ((from b) * 2)
+  ≡⟨⟩
+    suc (from (b O))
+  ∎
+bin-law-1 (b I) =
+  begin
+    from (inc (b I))
+  ≡⟨⟩
+    from ((inc b) O)
+  ≡⟨⟩
+    (from (inc b)) * 2
+  ≡⟨ cong ( _* 2) (bin-law-1 b) ⟩
+    (suc (from b)) * 2
+  ≡⟨⟩
+    (1 + (from b)) * 2
+  ≡⟨⟩
+    2 + (from b) * 2
+  ≡⟨⟩
+    (1 + 1) + (from b) * 2
+  ≡⟨ +-assoc 1 1 ((from b) * 2) ⟩
+    1 + (1 + (from b) * 2)
+  ≡⟨ cong (1 +_) (+-comm 1 ((from b)* 2)) ⟩
+    1 + ((from b) * 2 + 1)
+  ≡⟨⟩
+    1 + (from (b I))
+  ≡⟨⟩
+    suc (from (b I))
+  ∎
+
+
+{-
+-- sub lemma
+bin-lemma-1 : ∀ (
+
+-- sub lemma
+bin-lemma-2 : ∀ (n : ℕ) → to (n + n) ≡ (to n) O
+bin-lemma-2 zero =
+  begin
+    to (0 + 0)
+  ≡⟨⟩
+    to 0
+  ≡⟨⟩
+    ⟨⟩
+  ≡⟨⟩
+    ⟨⟩ O
+  ≡⟨⟩
+    (to 0) O
+  ∎
+-}
+
+{-
+bin-law-2 : ∀ (b : Bin) → to (from b) ≡ b
+bin-law-2 ⟨⟩ = refl
+bin-law-2 (b O) =
+  begin
+    to (from (b O))
+  ≡⟨⟩
+    to ((from b) * 2)
+  ≡⟨⟩
+    (to (from b)) O
+  ≡⟨ cong (_O) (bin-law-2 b) ⟩
+    b O
+  ∎
+-}  
+-- bin-law-2 (b I) = {!!}
+
+
+
+-- bin-law-2 does not hold, counter example
+
+bb2 = ⟨⟩ O I
+bb3 = to (from bb2)
+_ : bb3 ≡ ⟨⟩ I
+_ = refl
+
+
+-- bin-law-3
+
+bin-law-3 : ∀ ( n : ℕ ) →  from (to n) ≡ n
+bin-law-3 zero = refl
+bin-law-3 (suc n) =
+  begin
+    from (to (suc n))
+  ≡⟨⟩
+    from (inc (to n))
+  ≡⟨ bin-law-1 (to n) ⟩
+    suc (from (to n))
+  ≡⟨ cong suc (bin-law-3 n) ⟩ 
+    (suc n)
+  ∎ 
 ```
 
 
