@@ -1061,6 +1061,7 @@ for all naturals `m`, `n`, and `p`.
 
 ```agda
 -- Your code goes here
+
 ∸-+-assoc : ∀ (m n p : ℕ) → m ∸ n ∸ p ≡ m ∸ (n + p)
 ∸-+-assoc m zero p =
   begin
@@ -1072,12 +1073,38 @@ for all naturals `m`, `n`, and `p`.
   ≡⟨ cong (m ∸_) (+-comm p 0) ⟩
     m ∸ (0 + p)
   ∎
-    
-∸-+-assoc m (suc n) p =
+∸-+-assoc zero (suc n) p =
   begin
-    m ∸ (suc n) ∸ p
+    zero ∸ (suc n) ∸ p
   ≡⟨⟩
-    
+    zero ∸ p
+  ≡⟨ (∸-zero p) ⟩
+    zero
+  ≡⟨⟩
+    zero ∸ (suc (n + p))
+  ≡⟨ cong (zero ∸_) (cong suc (+-comm n p)) ⟩
+    zero ∸ (suc (p + n))    
+  ≡⟨ cong (zero ∸_) (sym (+-suc p n)) ⟩
+    zero ∸ (p + (suc n))
+  ≡⟨ cong (zero ∸_) (+-comm p (suc n)) ⟩
+    zero ∸ ((suc n) + p)  
+  ∎ 
+∸-+-assoc (suc m) (suc n) p =
+  begin
+    (suc m) ∸ (suc n) ∸ p
+  ≡⟨⟩
+    m ∸ n ∸ p
+  ≡⟨ (∸-+-assoc m n p) ⟩
+    m ∸ ( n + p)
+  ≡⟨⟩
+    (suc m) ∸ (suc ( n + p ) )
+  ≡⟨ cong ((suc m) ∸_) (cong suc (+-comm n p)) ⟩
+    (suc m) ∸ (suc ( p + n ) )    
+  ≡⟨ cong ((suc m) ∸_) (sym (+-suc p n)) ⟩
+    (suc m) ∸ ( p + (suc n) )      
+  ≡⟨ cong ((suc m) ∸_) (+-comm p (suc n)) ⟩
+    (suc m) ∸ ( (suc n) + p )
+  ∎
 ```
 
 
@@ -1093,6 +1120,62 @@ for all `m`, `n`, and `p`.
 
 ```
 -- Your code goes here
+^-distribˡ-+* : ∀ (m n p : ℕ) → m ^ (n + p) ≡ (m ^ n) * (m ^ p)
+^-distribˡ-+* m zero p =
+  begin
+    m ^ (0 + p)
+  ≡⟨⟩
+    m ^ p
+  ≡⟨ sym (*-identity (m ^ p)) ⟩
+    (m ^ p) * 1
+  ≡⟨ (*-comm (m ^ p) 1) ⟩ 
+    1 * (m ^ p)
+  ≡⟨⟩
+    (m ^ 0) * (m ^ p)
+  ∎  
+^-distribˡ-+* m (suc n) zero =
+  begin
+    m ^ ((suc n) + 0)
+  ≡⟨ cong ( m ^_) (+-identityʳ (suc n)) ⟩
+    m ^ (suc n)
+  ≡⟨ sym (*-identity (m ^ (suc n))) ⟩
+    (m ^ (suc n)) * 1
+  ≡⟨⟩
+    (m ^ (suc n)) * (m ^ 0)
+  ∎
+  
+^-distribˡ-+* m (suc n) (suc p) =
+  begin
+    m ^ ((suc n) + (suc p))
+  ≡⟨ cong (m ^_) (+-suc (suc n) p) ⟩
+    m ^ (suc ((suc n) + p) )
+  ≡⟨⟩
+    m * (m ^ ((suc n) + p))
+  ≡⟨ cong (m *_) (cong ( m ^_) (+-comm (suc n) p)) ⟩
+    m * (m ^ (p + (suc n)))
+  ≡⟨ cong (m *_) (cong ( m ^_) (+-suc p n)) ⟩
+    m * (m ^ (suc (p + n)))
+  ≡⟨⟩
+    m * (m * (m ^ (p + n)))
+  ≡⟨ cong (m *_) (cong (m *_) (cong (m ^_) (+-comm p n))) ⟩
+    m * (m * (m ^ (n + p)))
+  ≡⟨ cong (m *_) (cong (m *_) (^-distribˡ-+* m n p)) ⟩
+    m * (m * ((m ^ n) * (m ^ p)))
+  ≡⟨ cong (m *_) (sym (*-assoc m (m ^ n) (m ^ p))) ⟩
+    m * ((m * (m ^ n)) * (m ^ p))    
+  ≡⟨⟩
+    m * ((m ^ (suc n)) * (m ^ p))
+  ≡⟨ cong (m *_) (*-comm (m ^ (suc n)) (m ^ p)) ⟩
+    m * ((m ^ p) * (m ^ (suc n)))  
+  ≡⟨ sym (*-assoc m (m ^ p) (m ^ (suc n))) ⟩
+    (m * (m ^ p)) * (m ^ (suc n))    
+  ≡⟨⟩
+    (m ^ (suc p)) * (m ^ (suc n))
+  ≡⟨ *-comm (m ^ (suc p)) (m ^ (suc n)) ⟩      
+    (m ^ (suc n)) * (m ^ (suc p))
+  ∎
+    
+
 ```
 
 
