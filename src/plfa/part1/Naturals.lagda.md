@@ -1076,7 +1076,6 @@ from (b I) = ((from b) * 2) + 1
 ```
 
 
-
 ## Standard library
 
 At the end of each chapter, we will show where to find relevant

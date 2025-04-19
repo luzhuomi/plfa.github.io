@@ -46,7 +46,7 @@ And here is the definition in Agda:
 ```agda
 data _≤_ : ℕ → ℕ → Set where
 
-  z≤n : ∀ {n : ℕ}
+  z≤n : ∀ {n : ℕ} -- indexed types, n is quantified here. 
       --------
     → zero ≤ n
 
@@ -182,7 +182,7 @@ inv-s≤s : ∀ {m n : ℕ}
   → suc m ≤ suc n
     -------------
   → m ≤ n
-inv-s≤s (s≤s m≤n) = m≤n
+inv-s≤s (s≤s m≤n) = m≤n -- m≤n is the evidence of m ≤ n
 ```
 Here `m≤n` (with no spaces) is a variable name while
 `m ≤ n` (with spaces) is a type, and the latter
@@ -244,12 +244,55 @@ Give an example of a preorder that is not a partial order.
 
 ```agda
 -- Your code goes here
+{-
+Given two binaries b1 and b2
+we define a relation _R_
+
+b1 R b2 iff (to b1) ≡ (to b2)
+
+for example,
+
+⟨⟩ O I R ⟨⟩ I
+
+It is reflexive
+
+⟨⟩ I R ⟨⟩ O I
+
+It is transitive
+
+⟨⟩ I O R ⟨⟩ O O I
+
+hence
+
+⟨⟩ I R ⟨⟩ O O I 
+
+---------------------
+
+But  it is not anti-symetric
+
+ ⟨⟩ I ̸≡ ⟨⟩ O I
+-}
+
 ```
+
+
 
 Give an example of a partial order that is not a total order.
 
 ```agda
 -- Your code goes here
+
+{-
+let pair to be defined as
+  (m,n) where m n are ℕ
+
+(m,n) < (p,q) if m < p and n < q
+
+(m,n) < (m,q) if n < q
+
+not (1,2) < (0,3)
+not (0,3) < (1,2)
+-}
 ```
 
 ## Reflexivity
@@ -272,6 +315,17 @@ n`, and applying `s≤s` to that yields a proof of `suc n ≤ suc n`.
 
 It is a good exercise to prove reflexivity interactively in Emacs,
 using holes and the `C-c C-c`, `C-c C-,`, and `C-c C-r` commands.
+
+
+```agda
+≤-refl2 : ∀ { n : ℕ }
+    ------
+    → n ≤ n
+≤-refl2 {zero} = z≤n {zero} -- n is 0
+≤-refl2 {suc n} =
+  s≤s ≤-refl2 -- implicit 
+  -- s≤s (≤-refl2 {n}) -- explicit
+```
 
 
 ## Transitivity
@@ -327,6 +381,22 @@ out to be immensely valuable, and one that we use often.
 Again, it is a good exercise to prove transitivity interactively in Emacs,
 using holes and the `C-c C-c`, `C-c C-,`, and `C-c C-r` commands.
 
+```agda
+≤-trans'' : ∀ (m n p : ℕ)
+  → m ≤ n
+  → n ≤ p
+    -----
+  → m ≤ p
+≤-trans'' zero n p m≤n n≤p = z≤n {p}
+≤-trans'' (suc m) (suc n) (suc p) (s≤s m≤n) (s≤s n≤p) =
+  s≤s (≤-trans'' m n p m≤n n≤p)
+                      --------
+                      --  m≤p
+       ---------------------- 
+       -- (suc n) ≤ (suc p)
+
+```
+
 
 ## Anti-symmetry
 
@@ -363,6 +433,19 @@ argument is `s≤s`.  Why is it ok to omit them?
 
 ```agda
 -- Your code goes here
+≤-antisym' : ∀ (m n : ℕ)
+  → m ≤ n
+  → n ≤ m
+    -----
+  → m ≡ n
+≤-antisym' zero zero    z≤n   z≤n        =  refl
+-- ≤-antisym' zero (suc n) z≤n   s≤s        = ? -- not possible, coz (s≤s (suc n) zero) does not hold  
+≤-antisym' (suc m) (suc n) (s≤s m≤n) (s≤s n≤m)  =
+  cong suc (≤-antisym' m n  m≤n n≤m)
+                       -------------
+                       --  m ≡ n
+           -------------------------
+              --   (suc m) ≡ (suc n)
 ```
 
 
@@ -374,7 +457,8 @@ for any naturals `m` and `n` either `m ≤ n` or `n ≤ m`, or both if
 
 We specify what it means for inequality to be total:
 ```agda
-data Total (m n : ℕ) : Set where
+-- total is a definition of a relation, so that we can encode disjunction
+data Total (m n : ℕ) : Set where -- in this version m and n are quantified here. 
 
   forward :
       m ≤ n
@@ -399,13 +483,13 @@ in this case `m` and `n`.  It is equivalent to the following
 indexed datatype:
 ```agda
 data Total′ : ℕ → ℕ → Set where
-
-  forward′ : ∀ {m n : ℕ}
+  -- indexed type
+  forward′ : ∀ {m n : ℕ}  -- in this version m and n are quatified here, like GADT?
     → m ≤ n
       ----------
     → Total′ m n
 
-  flipped′ : ∀ {m n : ℕ}
+  flipped′ : ∀ {m n : ℕ} -- in this version m and n are quantifier here
     → n ≤ m
       ----------
     → Total′ m n
@@ -553,6 +637,29 @@ Show that multiplication is monotonic with regard to inequality.
 
 ```agda
 -- Your code goes here
+*-monoʳ-≤ : ∀ (n p q : ℕ)
+  → p ≤ q
+    -------------
+  → n * p ≤ n * q
+*-monoʳ-≤ zero p q p≤q = z≤n
+*-monoʳ-≤ (suc n) p q p≤q =
+  +-mono-≤ p q (n * p) (n * q) p≤q n*p≤n*q
+  where n*p≤n*q = *-monoʳ-≤ n p q p≤q
+--  +-mono-≤ p q (n * p) (n * q) p≤q (*-monoʳ-≤ n p q p≤q)
+
+*-monoˡ-≤ : ∀ (m n p : ℕ)
+  → m ≤ n
+    -------------
+  → m * p ≤ n * p
+*-monoˡ-≤ m n p m≤n  rewrite *-comm m p | *-comm n p  = *-monoʳ-≤ p m n m≤n
+
+
+*-mono-≤ : ∀ (m n p q : ℕ)
+  → m ≤ n
+  → p ≤ q
+    -------------
+  → m * p ≤ n * q
+*-mono-≤ m n p q m≤n p≤q  =  ≤-trans (*-monoˡ-≤ m n p m≤n) (*-monoʳ-≤ n p q p≤q)
 ```
 
 
@@ -601,6 +708,14 @@ exercise exploits the relation between < and ≤.)
 
 ```agda
 -- Your code goes here
+<-trans : ∀ {m n p : ℕ}
+  → m < n
+  → n < p
+    -----
+  → m < p
+<-trans {zero}    {(suc n)} {(suc p)} z<n       _          = z<s {p}
+<-trans {(suc m)} {(suc n)} {(suc p)} (s<s m<n) (s<s n<p)  = s<s {m} {p} m<p
+  where m<p = <-trans {m} {n} {p} m<n n<p
 ```
 
 #### Exercise `trichotomy` (practice) {#trichotomy}
@@ -619,6 +734,34 @@ similar to that used for totality.
 
 ```agda
 -- Your code goes here
+data Trichotomy (m n : ℕ) : Set where
+
+  tr-forward :
+    m < n
+  ----------------
+    → Trichotomy m n
+
+  tr-same :
+    m ≡ n
+  ---------------
+    → Trichotomy m n
+
+  tr-flipped :
+    n < m
+  ----------------
+    → Trichotomy m n
+
+
+<-trichotomy : ∀ (m n : ℕ) → Trichotomy m n
+<-trichotomy zero zero       = tr-same (refl)
+<-trichotomy zero (suc n)    = tr-forward (z<s {n})
+<-trichotomy (suc m) zero    = tr-flipped (z<s {m})
+<-trichotomy (suc m) (suc n) = helper (<-trichotomy m n)
+  where
+  helper : Trichotomy m n → Trichotomy (suc m) (suc n)
+  helper (tr-forward m<n) = tr-forward (s<s {m} {n} m<n)
+  helper (tr-same m≡n)    = tr-same (cong suc m≡n)
+  helper (tr-flipped n<m) = tr-flipped (s<s {n} {m} n<m)
 ```
 
 #### Exercise `+-mono-<` (practice) {#plus-mono-less}
@@ -628,6 +771,36 @@ As with inequality, some additional definitions may be required.
 
 ```agda
 -- Your code goes here
++-monoʳ-< : ∀ (n p q : ℕ)
+  → p < q
+    --------------
+  → n + p < n + q
++-monoʳ-< zero zero (suc q) z<s             = z<s {q}
++-monoʳ-< zero (suc p) (suc q) (s<s p<q)    = s<s p<q
+  -- goal zero + (suc p) < zero + (suc q)
++-monoʳ-< (suc n) zero (suc q) z<s          = s<s (+-monoʳ-< n zero    (suc q) z<s)
+  -- goal (suc n) + zero < (suc n) + suc q
+  --      suc (n + zero) < suc (n + (suc q))
+  --      s<s (like cong) (+-mono^r-+ n zero (suc q))
++-monoʳ-< (suc n) (suc p) (suc q) (s<s p<q) = s<s (+-monoʳ-< n (suc p) (suc q) (s<s p<q))
+
+
++-monoˡ-< : ∀ (m n p : ℕ)
+  → m < n
+    --------------
+  → m + p < n + p
++-monoˡ-< m n p rewrite +-comm m p | +-comm n p = +-monoʳ-< p m n
+
+
++-mono-< : ∀ (m n p q : ℕ)
+  → m < n
+  → p < q
+    ------------
+  → m + p < n + q
++-mono-< m n p q m<n p<q = <-trans m+p<m+q m+q<n+q 
+  where m+p<m+q = +-monoʳ-< m p q p<q
+        m+q<n+q = +-monoˡ-< m n q m<n
+        
 ```
 
 #### Exercise `≤→<, <→≤` (recommended) {#leq-iff-less}
