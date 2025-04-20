@@ -809,6 +809,21 @@ Show that `suc m ≤ n` implies `m < n`, and conversely.
 
 ```agda
 -- Your code goes here
+≤→< : ∀ (m n : ℕ)
+  → (suc m) ≤ n
+  --------
+  → m < n
+≤→< zero (suc n) (s≤s {zero} {n} z≤n) = z<s
+≤→< (suc m) (suc n) (s≤s sm≤n) = s<s m<n
+  where m<n = ≤→< m n sm≤n
+
+<→≤ : ∀ (m n : ℕ)
+  → m < n
+  ---------
+  → (suc m) ≤ n
+<→≤ zero (suc n) z<sn = s≤s (z≤n {n})
+<→≤ (suc m) (suc n) (s<s m<n) = s≤s sm≤n
+  where sm≤n = <→≤ m n m<n 
 ```
 
 #### Exercise `<-trans-revisited` (practice) {#less-trans-revisited}
@@ -819,6 +834,25 @@ the fact that inequality is transitive.
 
 ```agda
 -- Your code goes here
+
+-- sub lemma
+n≤sn : ∀ {n : ℕ}
+  → n ≤ (suc n)
+n≤sn {zero} = z≤n
+n≤sn {suc n} = s≤s (n≤sn {n})
+
+
+<-trans-revisited : ∀ {m n p : ℕ}
+  → m < n
+  → n < p
+    -----
+  → m < p
+<-trans-revisited {m} {n} {p} m<n n<p = ≤→< m p sm≤p
+  where sm≤n = <→≤ m n m<n
+        sn≤p = <→≤ n p n<p
+        sm≤sn = ≤-trans sm≤n (n≤sn {n})
+        sm≤p = ≤-trans sm≤sn sn≤p
+                
 ```
 
 
@@ -926,6 +960,23 @@ Show that the sum of two odd numbers is even.
 
 ```agda
 -- Your code goes here
+e+o≡o : ∀ {m n : ℕ}
+  → even m
+  → odd n
+  --------------
+  → odd (m + n)
+
+o+o≡e : ∀ {m n : ℕ}
+  → odd m
+  → odd n
+  --------------
+  → even (m + n)
+
+e+o≡o {zero} {suc n} zero (suc en) = suc en
+e+o≡o {suc m} {n} (suc om) on = suc (o+o≡e {m} {n} om on)
+
+o+o≡e {suc m} {n} (suc em) on = suc (e+o≡o {m} {n} em on)
+
 ```
 
 #### Exercise `Bin-predicates` (stretch) {#Bin-predicates}
