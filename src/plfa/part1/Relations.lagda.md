@@ -1037,6 +1037,63 @@ properties of `One`. It may also help to prove the following:
 
 ```agda
 -- Your code goes here
+data Bin : Set where
+  ⟨⟩ : Bin
+  _O : Bin → Bin
+  _I : Bin → Bin
+
+inc : Bin → Bin
+inc ⟨⟩    = ⟨⟩ I
+inc (b O) = b I
+inc (b I) = (inc b) O
+
+
+to : ℕ → Bin
+to zero = ⟨⟩
+to (suc n) = inc (to n)
+
+from : Bin → ℕ
+from ⟨⟩    = 0
+from (b O) = (from b) * 2
+from (b I) = ((from b) * 2) + 1
+
+data Can : Bin → Set
+
+data One : Bin → Set
+
+
+data Can where 
+  Can-⟨⟩ :
+    --------
+    Can ⟨⟩
+  Can-One : ∀ {b : Bin}
+    → One b
+    ------------
+    → Can b
+        
+data One where
+  One-⟨⟩-I :
+    ---------
+    One (⟨⟩ I)
+  One-I : ∀ {b : Bin}
+    → One b
+    ----------
+    → One (b I)
+  One-O : ∀ {b : Bin}
+    → One b
+    ----------
+    → One (b O)
+
+
+can→inc : ∀ (b : Bin)
+  → Can b
+  -------------
+  → Can (inc b)
+
+can→inc ⟨⟩ can-b = Can-One One-⟨⟩-I
+can→inc (b O) (Can-One one-o-b) = Can-One {!!}
+can→inc (b I) can-b = {!!}
+
 ```
 
 ## Standard library
