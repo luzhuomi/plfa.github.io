@@ -1085,14 +1085,37 @@ data One where
     → One (b O)
 
 
+-- sub lemma
+one-prefix-o : ∀ {b : Bin}
+  → One (b O)
+  -----------
+  → One b
+one-prefix-o {b} (One-O one-b-o) = one-b-o
+
+
+one-prefix-i : ∀ {b : Bin}
+  → One (b I)
+  -----------
+  → One b
+one-prefix-i {b} (One-I one-b-i) = one-b-i
+
+can-one : ∀ {b : Bin}
+  → Can b
+  --------
+  → One b
+
 can→inc : ∀ (b : Bin)
   → Can b
   -------------
   → Can (inc b)
 
 can→inc ⟨⟩ can-b = Can-One One-⟨⟩-I
-can→inc (b O) (Can-One one-o-b) = Can-One {!!}
-can→inc (b I) can-b = {!!}
+can→inc (b O) (Can-One (One-O one-b-o)) = Can-One (One-I one-b)
+  where one-b = one-prefix-o (One-O one-b-o)
+can→inc (b I) (Can-One (One-I one-b-i)) = Can-One (One-O one-b)
+  where one-b = one-prefix-i (One-I one-b-i)
+        can-inc-b = can→inc b (Can-One one-b)
+        inc-bi = inc (b I) = (inc b) O
 
 ```
 
