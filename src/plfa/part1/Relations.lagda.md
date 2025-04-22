@@ -1072,50 +1072,92 @@ data Can where
     → Can b
         
 data One where
-  One-⟨⟩-I :
+  One-i :
     ---------
     One (⟨⟩ I)
-  One-I : ∀ {b : Bin}
+  One-bi : ∀ {b : Bin}
     → One b
     ----------
     → One (b I)
-  One-O : ∀ {b : Bin}
+  One-bo : ∀ {b : Bin}
     → One b
     ----------
     → One (b O)
 
 
 -- sub lemma
-one-prefix-o : ∀ {b : Bin}
-  → One (b O)
-  -----------
+one→inc : ∀ {b : Bin}
   → One b
-one-prefix-o {b} (One-O one-b-o) = one-b-o
-
-
-one-prefix-i : ∀ {b : Bin}
-  → One (b I)
-  -----------
-  → One b
-one-prefix-i {b} (One-I one-b-i) = one-b-i
-
-can-one : ∀ {b : Bin}
-  → Can b
   --------
-  → One b
+  → One (inc b)
+one→inc {⟨⟩ I} One-i = One-bo One-i
+  where
+    io = inc (⟨⟩ I)
+one→inc {b O} (One-bo one-b) = One-bi one-b
+one→inc {b I} (One-bi one-b) = One-bo one-inc-b
+  where -- inc-b = inc b
+        one-inc-b = one→inc {b} one-b
+       
 
 can→inc : ∀ (b : Bin)
   → Can b
   -------------
   → Can (inc b)
 
-can→inc ⟨⟩ can-b = Can-One One-⟨⟩-I
-can→inc (b O) (Can-One (One-O one-b-o)) = Can-One (One-I one-b)
-  where one-b = one-prefix-o (One-O one-b-o)
-can→inc (b I) (Can-One (One-I one-b-i)) = Can-One (One-O one-b)
-  where one-b = one-prefix-i (One-I one-b-i)
-        can-inc-b = can→inc b (Can-One one-b)
-        inc-bi = inc (b I) = (inc b) O
+can→inc ⟨⟩ can-b = Can-One One-i
+can→inc (b O) (Can-One one-b-o) = Can-One (one→inc {b O} one-b-o)
+can→inc (b I) (Can-One one-b-i) = Can-One (one→inc {b I} one-b-i)
+
+
+to-nat-is-can : ∀ (n : ℕ)
+  -------------
+  → Can (to n)
+to-nat-is-can zero = Can-⟨⟩
+to-nat-is-can (suc n) = can→inc (to n) to-n-is-can
+  where to-n-is-can = to-nat-is-can n
+
+
+import Relation.Binary.PropositionalEquality as Eq
+import plfa.part1.Induction as Induction
+
+open Eq using (_≡_; refl; cong; sym)
+open Eq.≡-Reasoning using (begin_; step-≡-∣; step-≡-⟩; _∎)
+open Induction using (*-n-zero)
+
+
+to-from-b*2≡bo : ∀ (b : Bin)
+  → One b
+  --------------------------
+  → to ((from b) * 2) ≡ (b O)
+to-from-b*2≡bo (⟨⟩ I) One-i = refl
+to-from-b*2≡bo (b O)  (One-bo {b} one-b) =
+  begin
+    to ((from (b O) * 2))
+  ≡⟨⟩
+    to (((from b) * 2) * 2)
+  ≡⟨⟩
+    to (((from b) * 2) + ((from b) * 2))
+  ≡⟨⟩
+    (to (from b)) O
+  ≡⟨⟩
+    b O
+
+
+{-
+can-b→to-from-biject : ∀ (b : Bin)
+  → Can b
+  ----------------
+  → to (from b) ≡ b
+can-b→to-from-biject ⟨⟩ Can-⟨⟩ = refl
+can-b→to-from-biject (b O) (Can-One one-b-o) =
+  begin
+    to (from (b O))
+  ≡⟨⟩
+    (to ((from b) * 2))
+  ≡⟨ to-from-b*2≡bo ⟩ 
+    (b O)
+  ∎ 
+-}
 
 ```
 
