@@ -1122,7 +1122,74 @@ import plfa.part1.Induction as Induction
 
 open Eq using (_≡_; refl; cong; sym)
 open Eq.≡-Reasoning using (begin_; step-≡-∣; step-≡-⟩; _∎)
-open Induction using (*-n-zero)
+open Induction using (*-n-zero; *-identity; +-suc)
+
+
+
+n*2-is-n+n : ∀ ( n : ℕ )
+  → n * 2 ≡ n + n
+n*2-is-n+n n =
+  begin
+    n * 2
+  ≡⟨ *-comm n 2 ⟩
+    2 * n
+  ≡⟨⟩
+    n + 1 * n
+  ≡⟨ cong ( n +_) (*-comm 1 n) ⟩
+    n + n * 1  
+  ≡⟨ cong ( n +_) (*-identity n) ⟩ 
+    n + n
+  ∎
+
+to-n+n-is-to-n-o : ∀ ( n : ℕ )
+  → 1 ≤ n → to (n + n) ≡ ((to n) O)
+to-n+n-is-to-n-o (suc zero) (s≤s (z≤n {zero})) = refl
+to-n+n-is-to-n-o (suc (suc n)) (s≤s _) =
+                            -- it should be (s≤s (s≤s (z≤n {n}))) ? but type inference fails
+  let m = suc n
+      1≤m = s≤s z≤n
+  in
+  begin
+    to ((suc m) + (suc m))
+  ≡⟨ cong to (+-suc (suc m) m) ⟩ 
+    to (suc ((suc m) + m))
+  ≡⟨ cong to (cong suc ( +-comm (suc m) m )) ⟩
+    to (suc (m + (suc m)))
+  ≡⟨ cong to (cong suc ( +-suc m m )) ⟩
+    to (suc (suc (m + m)))
+  ≡⟨⟩
+    inc (to (suc (m + m)))
+  ≡⟨⟩
+    inc (inc (to (m + m)))
+  ≡⟨ cong inc (cong inc (to-n+n-is-to-n-o m 1≤m)) ⟩
+    inc (inc ((to m) O))
+  ≡⟨⟩  
+    ((to (suc m)) O)
+  ∎
+
+
+
+
+1≤n→to-2n-is-to-n-o : ∀ (n : ℕ)
+  → 1 ≤ n
+  --------------
+  → to (2 * n) ≡ (to n) O
+1≤n→to-2n-is-to-n-o n 1≤n =
+  begin
+    to (2 * n)
+  ≡⟨ cong to (*-comm 2 n) ⟩
+    to (n * 2)
+  ≡⟨ cong to (n*2-is-n+n n ) ⟩
+    to (n + n)
+  ≡⟨ to-n+n-is-to-n-o n 1≤n ⟩
+    (to n) O
+  ∎
+
+
+one-b→1≤from-b : ∀ (b : Bin)
+  → One b
+  --------
+  → 1 ≤ (from b)
 
 
 to-from-b*2≡bo : ∀ (b : Bin)
@@ -1131,17 +1198,22 @@ to-from-b*2≡bo : ∀ (b : Bin)
   → to ((from b) * 2) ≡ (b O)
 to-from-b*2≡bo (⟨⟩ I) One-i = refl
 to-from-b*2≡bo (b O)  (One-bo {b} one-b) =
+  let 1≤(from-b) = one-b→1≤from-b b one-b
+      1≤2*(from-b) = *-monoʳ-≤ 2 1 (from b) 1≤(from-b)
+  in 
   begin
     to ((from (b O) * 2))
   ≡⟨⟩
     to (((from b) * 2) * 2)
-  ≡⟨⟩
-    to (((from b) * 2) + ((from b) * 2))
+  ≡⟨ cong to (*-comm ((from b) * 2) 2) ⟩
+    to (2 * ((from b) * 2))
+  ≡⟨ cong to (cong (2 *_) (*-comm (from b) 2)) ⟩
+    to (2 * (2 * (from b)))  
   ≡⟨⟩
     (to (from b)) O
-  ≡⟨⟩
-    b O
-
+  ≡⟨ cong _O (to-from-b*2≡bo b one-b) ⟩
+    (b O) O
+  ∎ 
 
 {-
 can-b→to-from-biject : ∀ (b : Bin)
