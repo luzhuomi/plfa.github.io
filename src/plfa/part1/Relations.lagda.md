@@ -1190,16 +1190,31 @@ one-b→1≤from-b : ∀ (b : Bin)
   → One b
   --------
   → 1 ≤ (from b)
+one-b→1≤from-b (⟨⟩ I) One-i = ≤-refl
+one-b→1≤from-b (b I) (One-bi one-b) =
+  let 1≤from-b = one-b→1≤from-b b one-b
+      from-b-i = (from b) * 2 + 1
+      
+      1≤from-b-i = 
 
 
 to-from-b*2≡bo : ∀ (b : Bin)
   → One b
   --------------------------
   → to ((from b) * 2) ≡ (b O)
+
+can-b→to-from-biject : ∀ (b : Bin)
+  → Can b
+  ----------------
+  → to (from b) ≡ b
+
 to-from-b*2≡bo (⟨⟩ I) One-i = refl
 to-from-b*2≡bo (b O)  (One-bo {b} one-b) =
-  let 1≤(from-b) = one-b→1≤from-b b one-b
-      1≤2*(from-b) = *-monoʳ-≤ 2 1 (from b) 1≤(from-b)
+  let 1≤from-b = one-b→1≤from-b b one-b
+      2≤2*from-b = *-monoʳ-≤ 2 1 (from b) 1≤from-b
+      1≤2 = s≤s z≤n
+      1≤2*from-b : 1 ≤ (2 * (from b))
+      1≤2*from-b = ≤-trans {1} {2} {2 * (from b)} 1≤2 2≤2*from-b
   in 
   begin
     to ((from (b O) * 2))
@@ -1209,27 +1224,68 @@ to-from-b*2≡bo (b O)  (One-bo {b} one-b) =
     to (2 * ((from b) * 2))
   ≡⟨ cong to (cong (2 *_) (*-comm (from b) 2)) ⟩
     to (2 * (2 * (from b)))  
+  ≡⟨ 1≤n→to-2n-is-to-n-o (2 * (from b)) 1≤2*from-b ⟩
+    (to (2 * (from b))) O
+  ≡⟨ cong _O ( 1≤n→to-2n-is-to-n-o (from b) 1≤from-b) ⟩
+    ((to (from b)) O) O
+  ≡⟨ cong _O (cong _O (can-b→to-from-biject b (Can-One one-b))) ⟩
+    ((b O) O)
+  ∎
+to-from-b*2≡bo (b I) (One-bi {b} one-b) =
+  let 1≤from-b = one-b→1≤from-b b one-b
+      2≤2*from-b = *-monoʳ-≤ 2 1 (from b) 1≤from-b
+      1≤2 = s≤s z≤n
+      1≤2*from-b : 1 ≤ (2 * (from b))
+      1≤2*from-b = ≤-trans {1} {2} {2 * (from b)} 1≤2 2≤2*from-b
+      2≤2*from-b+1 = +-monoˡ-≤ 1 (2 * (from b)) 1 1≤2*from-b
+      1≤2*from-b+1 = ≤-trans {1} {2} {2 * (from b) + 1} 1≤2 2≤2*from-b+1
+  in 
+  begin
+    to ((from (b I) * 2))
   ≡⟨⟩
-    (to (from b)) O
-  ≡⟨ cong _O (to-from-b*2≡bo b one-b) ⟩
-    (b O) O
+    to ((((from b) * 2) + 1) * 2)
+  ≡⟨ cong to (*-comm (((from b) * 2) + 1) 2) ⟩
+    to (2 * (((from b) * 2) + 1))
+  ≡⟨ cong to (cong (2 *_) (cong ( _+ 1) (*-comm (from b) 2))) ⟩
+    to (2 * (2 * (from b) + 1))
+  ≡⟨ 1≤n→to-2n-is-to-n-o (2 * (from b) + 1) 1≤2*from-b+1 ⟩
+    (to (2 * (from b) + 1)) O
+  ≡⟨ cong _O (cong to (+-comm (2 * (from b)) 1)) ⟩
+    (to (1 + 2 * (from b))) O  
+  ≡⟨⟩  
+    (inc (to (2 * (from b)))) O
+  ≡⟨ cong _O (cong inc (1≤n→to-2n-is-to-n-o (from b) 1≤from-b)) ⟩
+    (inc ((to (from b)) O)) O
+  ≡⟨ cong _O (cong inc (cong _O (can-b→to-from-biject b (Can-One one-b)))) ⟩
+    (inc (b O)) O
+  ≡⟨⟩
+    ((b I) O)
   ∎ 
 
-{-
-can-b→to-from-biject : ∀ (b : Bin)
-  → Can b
-  ----------------
-  → to (from b) ≡ b
 can-b→to-from-biject ⟨⟩ Can-⟨⟩ = refl
-can-b→to-from-biject (b O) (Can-One one-b-o) =
+can-b→to-from-biject (⟨⟩ I) (Can-One One-i) = refl
+can-b→to-from-biject (b O) (Can-One (One-bo one-b)) =
   begin
     to (from (b O))
   ≡⟨⟩
     (to ((from b) * 2))
-  ≡⟨ to-from-b*2≡bo ⟩ 
+  ≡⟨ to-from-b*2≡bo b one-b ⟩ 
     (b O)
   ∎ 
--}
+can-b→to-from-biject (b I) (Can-One (One-bi one-b)) =
+  begin
+    to (from (b I))
+  ≡⟨⟩
+    to ((from b) * 2 + 1)
+  ≡⟨ cong to (+-comm ((from b) * 2) 1) ⟩
+    to (1 + (from b) * 2)
+  ≡⟨⟩
+    inc (to ((from b) * 2))
+  ≡⟨ cong inc (to-from-b*2≡bo b one-b) ⟩ 
+    inc (b O)
+  ≡⟨⟩
+    b I
+  ∎ 
 
 ```
 
