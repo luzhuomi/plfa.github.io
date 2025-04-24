@@ -1168,8 +1168,6 @@ to-n+n-is-to-n-o (suc (suc n)) (s≤s _) =
   ∎
 
 
-
-
 1≤n→to-2n-is-to-n-o : ∀ (n : ℕ)
   → 1 ≤ n
   --------------
@@ -1185,6 +1183,15 @@ to-n+n-is-to-n-o (suc (suc n)) (s≤s _) =
     (to n) O
   ∎
 
+≤-≡ : ∀ {m n p : ℕ}
+  → m ≤ n
+  → n ≡ p
+  --------
+  → m ≤ p
+≤-≡ {zero} {zero} {p} z≤n zero≡p = z≤n 
+≤-≡ {suc m} {suc n} {suc p} (s≤s m≤n) suc-n≡suc-p =
+  let n≡p : n ≡ p
+  in s≤s (≤-≡ {m} {n} {p} m≤n n≡p)
 
 one-b→1≤from-b : ∀ (b : Bin)
   → One b
@@ -1193,9 +1200,24 @@ one-b→1≤from-b : ∀ (b : Bin)
 one-b→1≤from-b (⟨⟩ I) One-i = ≤-refl
 one-b→1≤from-b (b I) (One-bi one-b) =
   let 1≤from-b = one-b→1≤from-b b one-b
-      from-b-i = (from b) * 2 + 1
-      
-      1≤from-b-i = 
+      from-b-i   = (from b) * 2 + 1
+      2*from-b+1 = 2 * (from b) + 1
+      2≤2*from-b = *-monoʳ-≤ 2 1 (from b) 1≤from-b
+      1≤2 = s≤s z≤n
+      1≤2*from-b : 1 ≤ (2 * (from b))
+      1≤2*from-b = ≤-trans {1} {2} {2 * (from b)} 1≤2 2≤2*from-b
+      2≤2*from-b+1 = +-monoˡ-≤ 1 (2 * (from b)) 1 1≤2*from-b
+      1≤2*from-b+1 = ≤-trans {1} {2} {2 * (from b) + 1} 1≤2 2≤2*from-b+1
+      from-b-i≡2*from-b+1 =
+        begin
+          (from b) * 2 + 1
+        ≡⟨ cong (_+ 1) (*-comm (from b) 2) ⟩
+          2 * (from b) + 1
+        ∎
+      1≤from-b-i = ≤-≡  1≤2*from-b+1 (sym from-b-i≡2*from-b+1)
+  in 1≤from-b-i
+    
+  
 
 
 to-from-b*2≡bo : ∀ (b : Bin)
