@@ -380,6 +380,30 @@ regard to inequality.  Rewrite all of `+-monoˡ-≤`, `+-monoʳ-≤`, and `+-mon
 
 ```agda
 -- Your code goes here
+
+module ≤-Reasoning {A : Set} where
+
+  infix  1 begin_
+  infixr 2 step-≡-∣ step-≡-⟩
+  infix  3 _∎
+
+  begin_ : ∀ {x y : A} → x ≡ y → x ≡ y
+  begin x≡y  =  x≡y
+
+  step-≡-∣ : ∀ (x : A) {y : A} → x ≡ y → x ≡ y
+  step-≡-∣ x x≡y  =  x≡y
+
+  step-≡-⟩ : ∀ (x : A) {y z : A} → y ≡ z → x ≡ y → x ≡ z
+  step-≡-⟩ x y≡z x≡y  =  trans x≡y y≡z
+
+  syntax step-≡-∣ x x≡y      =  x ≡⟨⟩ x≡y
+  syntax step-≡-⟩ x y≡z x≡y  =  x ≡⟨  x≡y ⟩ y≡z
+
+  _∎ : ∀ (x : A) → x ≡ x
+  x ∎  =  refl
+
+open ≤-Reasoning
+
 ```
 
 
