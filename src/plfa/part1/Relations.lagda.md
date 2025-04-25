@@ -1191,7 +1191,11 @@ to-n+n-is-to-n-o (suc (suc n)) (s≤s _) =
   → m ≤ p
 -- ≤-≡ m≤n refl = m≤n  
 ≤-≡ {zero} {n} {p} z≤n refl = z≤n 
-≤-≡ {suc m} {suc n} {suc p} (s≤s m≤n) refl =  (s≤s m≤n) -- refl unifies the type n ≡ p
+≤-≡ {suc m} {suc n} {suc p} (s≤s m≤n) refl =  (s≤s m≤n)
+  -- refl unifies the type n ≡ p
+  -- because relf is a constructor of the type constructor ≡
+  -- thanks for dependent type inference, the pattern refines
+  -- the RHS with an additional type constraint. 
 
 one-b→1≤from-b : ∀ (b : Bin)
   → One b

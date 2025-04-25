@@ -291,6 +291,7 @@ of `_≡⟨_⟩_`)
 
 ```agda
 -- Your code goes here
+-- because _≡⟨_⟩_ is defined using  step-≡-⟩ which is in turn defined using trans
 ```
 
 ## Chains of equations, another example
