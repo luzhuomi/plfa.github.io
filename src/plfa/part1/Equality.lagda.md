@@ -381,14 +381,17 @@ regard to inequality.  Rewrite all of `+-monoˡ-≤`, `+-monoʳ-≤`, and `+-mon
 ```agda
 -- Your code goes here
 
+data _≤_ {A : Set} (x y : A) : A → Set where
+  z≤n : zero 
+
 module ≤-Reasoning {A : Set} where
 
   infix  1 begin_
-  infixr 2 step-≡-∣ step-≡-⟩
+  infixr 2 step-≤-∣ step-≤-⟩
   infix  3 _∎
 
-  begin_ : ∀ {x y : A} → x ≡ y → x ≡ y
-  begin x≡y  =  x≡y
+  begin_ : ∀ {x y : A} → x ≤ y → x ≤ y
+  begin x≤y  =  x≤y
 
   step-≡-∣ : ∀ (x : A) {y : A} → x ≡ y → x ≡ y
   step-≡-∣ x x≡y  =  x≡y
