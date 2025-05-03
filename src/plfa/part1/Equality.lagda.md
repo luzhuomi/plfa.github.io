@@ -380,32 +380,93 @@ regard to inequality.  Rewrite all of `+-monoˡ-≤`, `+-monoʳ-≤`, and `+-mon
 
 ```agda
 -- Your code goes here
-
+{-
+-- can't we have polymoprihc _≤_ ?
 data _≤_ {A : Set} (x y : A) : A → Set where
-  z≤n : zero 
+  z≤n : zero ≤ x
+  s≤≤ : suc x ≤ suc y  
 
 module ≤-Reasoning {A : Set} where
 
-  infix  1 begin_
+  infix  1 begin-≤_
   infixr 2 step-≤-∣ step-≤-⟩
-  infix  3 _∎
+  infix  3 _∎≤
 
-  begin_ : ∀ {x y : A} → x ≤ y → x ≤ y
-  begin x≤y  =  x≤y
+  begin-≤_ : ∀ {x y : A} → x ≤ y → x ≤ y
+  begin-≤ x≤y  =  x≤y
 
-  step-≡-∣ : ∀ (x : A) {y : A} → x ≡ y → x ≡ y
-  step-≡-∣ x x≡y  =  x≡y
+  step-≤-∣ : ∀ (x : A) {y : A} → x ≤ y → x ≤ y
+  step-≤-∣ x x≤y  =  x≤y
 
-  step-≡-⟩ : ∀ (x : A) {y z : A} → y ≡ z → x ≡ y → x ≡ z
-  step-≡-⟩ x y≡z x≡y  =  trans x≡y y≡z
+  step-≤-⟩ : ∀ (x : A) {y z : A} → y ≤ z → x ≤ y → x ≤ z
+  step-≤-⟩ x y≤z x≤y  =  trans x≤y y≤z
 
-  syntax step-≡-∣ x x≡y      =  x ≡⟨⟩ x≡y
-  syntax step-≡-⟩ x y≡z x≡y  =  x ≡⟨  x≡y ⟩ y≡z
+  syntax step-≤-∣ x x≤y      =  x ≤⟨⟩ x≤y
+  syntax step-≤-⟩ x y≤z x≤y  =  x ≤⟨  x≤y ⟩ y≤z
 
-  _∎ : ∀ (x : A) → x ≡ x
-  x ∎  =  refl
+  _∎≤ : ∀ (x : A) → x ≤ x
+  x ∎≤  =  refl
 
 open ≤-Reasoning
+-}
+
+data _≤_ : ℕ → ℕ → Set where
+  z≤n : ∀ { n : ℕ } → zero ≤ n
+  s≤s : ∀ { n m : ℕ }
+    → n ≤ m
+    -----------------
+    → suc n ≤ suc m
+
+infix  10 _≤_
+
+
+≤-refl : ∀ {n : ℕ}
+    -----
+  → n ≤ n
+≤-refl {zero} = z≤n
+≤-refl {suc n} = s≤s ≤-refl
+
+
+≤-trans : ∀ {m n p : ℕ}
+  → m ≤ n
+  → n ≤ p
+    -----
+  → m ≤ p
+≤-trans z≤n       _          =  z≤n
+≤-trans (s≤s m≤n) (s≤s n≤p)  =  s≤s (≤-trans m≤n n≤p)
+
+
+
+module ≤-Reasoning  where
+
+  infix  1 begin-≤_
+  infixr 2 step-≤-∣ step-≤-⟩
+  infix  3 _∎≤
+
+  begin-≤_ : ∀ {x y : ℕ} → x ≤ y → x ≤ y
+  begin-≤ x≤y  =  x≤y
+
+  step-≤-∣ : ∀ (x : ℕ) {y : ℕ} → x ≤ y → x ≤ y
+  step-≤-∣ x x≤y  =  x≤y
+
+  step-≤-⟩ : ∀ (x : ℕ) {y z : ℕ} → y ≤ z → x ≤ y → x ≤ z
+  step-≤-⟩ x y≤z x≤y  =  ≤-trans x≤y y≤z
+
+  syntax step-≤-∣ x x≤y      =  x ≤⟨⟩ x≤y
+  syntax step-≤-⟩ x y≤z x≤y  =  x ≤⟨  x≤y ⟩ y≤z
+
+  _∎≤ : ∀ (x : ℕ) → x ≤ x
+  x ∎≤  =  ≤-refl
+
+open ≤-Reasoning
+
+
++-monoʳ-≤' : ∀ (n p q : ℕ)
+  → p ≤ q
+    ------------- 
+  → n + p ≤ n + q
++-monoʳ-≤' zero    p q p≤q = p≤q
++-monoʳ-≤' (suc n) p q p≤q = {!!}
 
 ```
 
