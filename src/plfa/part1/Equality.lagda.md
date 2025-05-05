@@ -460,13 +460,58 @@ module ≤-Reasoning  where
 
 open ≤-Reasoning
 
+suc-mono-≤ : ∀ {p q : ℕ}
+  → p ≤ q
+    -------------
+  → suc p ≤ suc q
+suc-mono-≤ {zero} {q} z≤n = s≤s z≤n 
+suc-mono-≤ {suc p} {suc q} (s≤s p≤q) = s≤s (s≤s p≤q)
 
-+-monoʳ-≤' : ∀ (n p q : ℕ)
++-monoʳ-≤ : ∀ (n p q : ℕ)
   → p ≤ q
     ------------- 
   → n + p ≤ n + q
-+-monoʳ-≤' zero    p q p≤q = p≤q
-+-monoʳ-≤' (suc n) p q p≤q = {!!}
++-monoʳ-≤ zero    p q p≤q = p≤q
++-monoʳ-≤ (suc n) p q p≤q =
+  begin-≤
+    (suc n) + p
+  ≤⟨⟩
+    suc (n + p)
+  ≤⟨ suc-mono-≤ { (n + p) } { (n + q) } (+-monoʳ-≤ n p q p≤q) ⟩
+    suc (n + q)
+  ≤⟨⟩
+    (suc n) + q
+  ∎≤
+   
+
+≡→≤ : ∀ {m n : ℕ}
+  → m ≡ n
+  --------
+  → m ≤ n
+≡→≤ {zero} {zero} refl = z≤n 
+≡→≤ {suc m} {suc n} refl = s≤s (≡→≤ {m} {n} refl)
+
++-monoˡ-≤ : ∀ (m n p : ℕ)
+  → m ≤ n
+    ------------- 
+  → m + p ≤ n + p
++-monoˡ-≤ m n p m≤n =
+  begin-≤
+    m + p
+  ≤⟨ ≡→≤ {m + p} {p + m} (+-comm m p) ⟩ 
+    p + m
+  ≤⟨ +-monoʳ-≤ p m n m≤n ⟩
+    p + n
+  ≤⟨ ≡→≤ {p + n} {n + p} (+-comm p n) ⟩
+    n + p
+  ∎≤
+
++-mono-≤ : ∀ (m n p q : ℕ)
+  → m ≤ n
+  → p ≤ q
+    -------------
+  → m + p ≤ n + q
++-mono-≤ m n p q m≤n p≤q  =  ≤-trans (+-monoˡ-≤ m n p m≤n) (+-monoʳ-≤ n p q p≤q)
 
 ```
 
