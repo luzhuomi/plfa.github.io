@@ -637,6 +637,8 @@ even-comm′ : ∀ (m n : ℕ)
   → even (n + m)
 even-comm′ m n ev with   m + n  | +-comm m n
 ...                  | .(n + m) | refl       = ev
+--             ev : even (m + n)
+--            with ... = ev : even (n + m)
 ```
 In general, one can follow `with` by any number of expressions,
 separated by bars, where each following equation has the same number
@@ -663,15 +665,16 @@ even-comm″ : ∀ (m n : ℕ)
     ------------
   → even (n + m)
 even-comm″ m n  =  subst even (+-comm m n)
+--                       P    m+n≡n+m      -- has type  : even (m + n) →  even (n + m) 
 ```
 Nonetheless, rewrite is a vital part of the Agda toolkit.  We will use
 it sparingly, but it is occasionally essential.
 
 
-## Leibniz equality
+## Leibniz equality 
 
 The form of asserting equality that we have used is due to Martin-Löf,
-and was published in 1975.  An older form is due to Leibniz, and
+and was published in 1975.  An older form is due  to Leibniz, and
 was published in 1686.  Leibniz asserted the _identity of
 indiscernibles_: two objects are equal if and only if they satisfy the
 same properties. This principle sometimes goes by the name Leibniz'
