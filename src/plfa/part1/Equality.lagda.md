@@ -691,8 +691,8 @@ converse, that every property `P` that holds of `y` also holds of `x`.
 Let `x` and `y` be objects of type `A`. We say that `x ≐ y` holds if
 for every predicate `P` over type `A` we have that `P x` implies `P y`:
 ```agda
-_≐_ : ∀ {A : Set} (x y : A) → Set₁
-_≐_ {A} x y = ∀ (P : A → Set) → P x → P y -- <- not expression, types!
+_≐_ : ∀ {A : Set} (x y : A) → Set₁ -- because of the ∀ (P : A → Set) 
+_≐_ {A} x y = ∀ (P : A → Set) → P x → P y -- <- not expression, types! 
 -- _≐_ is a Set₀ constructor!
 ```
 We cannot write the left-hand side of the equation as `x ≐ y`,
