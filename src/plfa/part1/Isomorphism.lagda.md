@@ -437,15 +437,28 @@ open ≲-Reasoning
 
 Show that every isomorphism implies an embedding.
 ```agda
+{-
 postulate
   ≃-implies-≲ : ∀ {A B : Set}
     → A ≃ B
       -----
     → A ≲ B
+-}    
 ```
 
 ```agda
 -- Your code goes here
+
+≃-implies-≲ : ∀ {A B : Set}
+  → A ≃ B
+  -----
+  → A ≲ B
+≃-implies-≲ {A} {B} A≃B =
+  record
+    { to   = λ{ x → (to A≃B) x }
+    ; from = λ{ x → (from A≃B) x }
+    ; from∘to = λ{ x → (from∘to A≃B) x }
+    }
 ```
 
 #### Exercise `_⇔_` (practice) {#iff}
