@@ -237,6 +237,16 @@ is isomorphic to `(A → B) × (B → A)`.
 
 ```agda
 -- Your code goes here
+
+⇔≃× : ∀ { A B : Set }
+  → (A ⇔ B) ≃ ((A → B) × (B → A) )
+⇔≃× =
+  record
+    { to      = λ { A⇔B → ⟨ (plfa.part1.Isomorphism._⇔_.to A⇔B), (plfa.part1.Isomorphism._⇔_.from A⇔B) ⟩ }
+    ; from    = λ { ⟨ AtoB , BtoA ⟩ → record { to = AtoB; from = BtoA  } }
+    ; from∘to = λ { x → refl }
+    ; to∘from = λ { x → refl }
+    }
 ```
 
 
