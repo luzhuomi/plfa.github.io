@@ -298,6 +298,7 @@ As with the product, the record type `⊤` and the data type `⊤′` behave
 similarly, but while η-equality holds *by definition* for the record type,
 it does not for the data type, so we need to pattern match on `w`:
 ```agda
+-- this is because for record type, there is only one constructor, while data could have multiple constructors?
 η-⊤′ : ∀ (w : ⊤′) → tt′ ≡ w
 η-⊤′ tt′ = refl
 ```
@@ -467,6 +468,13 @@ Show sum is commutative up to isomorphism.
 
 ```agda
 -- Your code goes here
+⊎-comm : ∀ {A B : Set} → (A ⊎ B) ≃ (B ⊎ A)
+⊎-comm = record
+  { to      = λ { (inj₁ a) → (inj₂ a) ; (inj₂ b) → (inj₁ b) }
+  ; from    = λ { (inj₁ b) → (inj₂ b) ; (inj₂ a) → (inj₁ a) }
+  ; from∘to = λ { (inj₁ a) → refl  ; (inj₂ b) → refl }
+  ; to∘from = λ { (inj₁ b) → refl  ; (inj₂ a) → refl }
+  }
 ```
 
 #### Exercise `⊎-assoc` (practice)
@@ -475,6 +483,13 @@ Show sum is associative up to isomorphism.
 
 ```agda
 -- Your code goes here
+⊎-assoc : ∀ {A B C : Set} → (A ⊎ B) ⊎ C ≃ A ⊎ (B ⊎ C)
+⊎-assoc = record
+  { to     = λ{ (inj₁ (inj₁ a)) → (inj₁ a) ; (inj₁ (inj₂ b)) → (inj₂ (inj₁ b)) ; (inj₂ c) → (inj₂ (inj₂ c)) }
+  ; from   = λ{ (inj₁ a) → (inj₁ (inj₁ a)) ; (inj₂ (inj₁ b)) → (inj₁ (inj₂ b)) ; (inj₂ (inj₂ c)) → (inj₂ c) }
+  ; from∘to = λ{ (inj₁ (inj₁ a)) → refl ; (inj₁ (inj₂ b)) → refl ; (inj₂ c) → refl }
+  ; to∘from = λ{ (inj₁ a) → refl ; (inj₂ (inj₁ b)) → refl ; (inj₂ (inj₂ c)) → refl }
+  }
 ```
 
 ## False is empty
@@ -541,6 +556,13 @@ Show empty is the left identity of sums up to isomorphism.
 
 ```agda
 -- Your code goes here
+⊥-identityˡ : ∀ { A : Set } → ⊥ ⊎ A ≃ A
+⊥-identityˡ = record
+  { to         = λ { (inj₂ a) → a }
+  ; from       = λ { a → (inj₂ a) }
+  ; from∘to    = λ { (inj₂ a) → refl }
+  ; to∘from    = λ { a → refl }
+  }
 ```
 
 #### Exercise `⊥-identityʳ` (practice)
@@ -549,6 +571,15 @@ Show empty is the right identity of sums up to isomorphism.
 
 ```agda
 -- Your code goes here
+⊥-identityʳ : ∀ { A : Set } → A ⊎ ⊥ ≃ A
+⊥-identityʳ {A} =
+  ≃-begin
+    (A ⊎ ⊥)
+  ≃⟨ ⊎-comm ⟩
+    (⊥ ⊎ A)
+  ≃⟨ ⊥-identityˡ ⟩
+    A
+  ≃-∎
 ```
 
 ## Implication is function {#implication}
