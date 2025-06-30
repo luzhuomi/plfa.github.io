@@ -130,6 +130,10 @@ pattern match know that η-equality holds:
 ```agda
 η-×′ : ∀ {A B : Set} (w : A ×′ B) → ⟨ proj₁′ w , proj₂′ w ⟩′ ≡ w
 η-×′ ⟨ x , y ⟩′ = refl
+
+-- η-×′-1 : ∀ {A B : Set} (w : A ×′ B) → ⟨ proj₁′ w , proj₂′ w ⟩′ ≡ w
+-- η-×′-1 w = refl
+-- this won't work as we don't have the type info that w = (proj1 w, proj2 w)
 ```
 The pattern matching on the left-hand side is essential, since
 replacing `w` by `⟨ x , y ⟩′` allows both sides of the
@@ -237,6 +241,18 @@ is isomorphic to `(A → B) × (B → A)`.
 
 ```agda
 -- Your code goes here
+⇔≃× : ∀ {A B : Set} → A ⇔ B ≃ (A → B)×(B → A)
+⇔≃× =
+  record
+    { to = λ{ A⇔B → ⟨ (_⇔_.to A⇔B) , (_⇔_.from A⇔B) ⟩ }
+    ; from = λ{ ⟨ A→B , B→A ⟩ → record
+                  { to = A→B
+                  ; from = B→A
+                  }
+              }
+    ; from∘to = λ { w → refl }
+    ; to∘from = λ { w → refl }
+    } 
 ```
 
 
