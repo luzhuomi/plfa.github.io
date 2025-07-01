@@ -714,32 +714,57 @@ is the same as the assertion that if `A` holds then `C` holds and if
     ; from    = λ{ ⟨ g , h ⟩ → λ{ (inj₁ x) → g x ; (inj₂ y) → h y } }
       -- from∘to :  ∀ ( x : A ⊎ B → C)  →  from ( to x ) ≡ x
       --   f, x : (A ⊎ B) → C
-      --   extensionality : { (from ∘ to) Function.id : (A ⊎ B → C) → (A ⊎ B → C) } → 
-      --     (∀ (x : A ⊎ B → C) → (( from ∘ to ) x ) ≡ (Function.id x) ) →
-      --     from ∘ to ≡ Function.id
+      --   the goal is to show f ≡ from ( to f )
+      -- 
+      --   monomorphized extensionality : { f (from (to f)) : (A ⊎ B → C) } → 
+      --     (∀ (x : A ⊎ B ) → ( (from (to f)) x ≡ (f x) ) →
+      --     from ∘ to f ≡ f
       --   
       --     λ{ (inj₁ x) → refl ; (inj₂ y) → refl } :
-      --       (∀ (x : A ⊎ B → C) → (( from ∘ to ) x ) ≡ (Function.id x) )
-      --     but the input type is (inj₁ x) and (inj₂ y) not a function type!
-    -- ; from∘to = λ{ f → extensionality  λ{ (inj₁ x) → refl ; (inj₂ y) → refl } }
-    ; from∘to = λ { f →
-                let sub = λ f' → 
-                  begin
-                    ((λ { ⟨ g , h ⟩ → λ { (inj₁ x) → g x ; (inj₂ y) → h y } })
-                     ((λ { f → ⟨ (λ x → f (inj₁ x)) , (λ x → f (inj₂ x)) ⟩ }) f'))
-                  ≡⟨⟩
-                    ( (λ { ⟨ g , h ⟩ → λ { (inj₁ x) → g x ; (inj₂ y) → h y } })
-                      ⟨ (λ x → f' (inj₁ x)) , (λ x → f' (inj₂ x)) ⟩ )
-                  ≡⟨⟩
-                    λ { (inj₁ x) → (λ x → f' (inj₁ x)) x ; (inj₂ y) → (λ x → f' (inj₂ x)) y }
-                  ≡⟨⟩
-                    
-                  ∎ 
-                in extensionality sub
-                } 
+      --       (∀ (x : A ⊎ B ) → ( (from (to f)) x ≡ (f x) ) 
+    ; from∘to = λ{ f → extensionality  λ{ (inj₁ x) → refl ; (inj₂ y) → refl } }
+
+    -- step by step breakdown
+    -- step 1
+    -- ; from∘to = λ{ f → {!!} }
+    {-
+    ?0
+      : (λ { ⟨ g , h ⟩ → λ { (inj₁ x) → g x ; (inj₂ y) → h y } })
+        ((λ { f → ⟨ (λ x → f (inj₁ x)) , (λ x → f (inj₂ x)) ⟩ }) f)
+      ≡ f
+    -}
+    -- step 2
+    -- ; from∘to = λ{ f → extensionality {!!} }
+    {-
+    ?0
+       : (x : A ⊎ B) →
+       (λ { ⟨ g , h ⟩ → λ { (inj₁ x) → g x ; (inj₂ y) → h y } })
+       ((λ { f → ⟨ (λ x₁ → f (inj₁ x₁)) , (λ x₁ → f (inj₂ x₁)) ⟩ }) f) x
+       ≡ f x
+    -}
     ; to∘from = λ{ _ → refl }
     }
-  
+    -- not in use
+    {- -- we need lambda calculus
+    ; from∘to = 
+             let sub = λ j → begin
+                                (from ∘ to) j 
+                              ≡⟨⟩
+                                ((λ { ⟨ g , h ⟩ → λ { (inj₁ x) → g x ; (inj₂ y) → h y } })
+                                ((λ { f → ⟨ (λ x → f (inj₁ x)) , (λ x → f (inj₂ x)) ⟩ }) j))
+                              ≡⟨⟩
+                                ( (λ { ⟨ g , h ⟩ → λ { (inj₁ x) → g x ; (inj₂ y) → h y } })
+                                  ⟨ (λ x → j (inj₁ x)) , (λ x → j (inj₂ x)) ⟩ )
+                              ≡⟨⟩
+                                ( λ { (inj₁ x) → (λ x → j (inj₁ x)) x ; (inj₂ y) → (λ x → j (inj₂ x)) y })
+                              ≡⟨⟩ 
+                                ( λ { (inj₁ x) → j (inj₁ x) ; (inj₂ y) → j (inj₂ y) } )
+                              ≡⟨⟩
+                                j 
+                              ∎ }
+                in extensionality  sub
+                } -}
+
 ```
 copied begin
 postulate
