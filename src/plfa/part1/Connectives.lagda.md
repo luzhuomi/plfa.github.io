@@ -708,8 +708,15 @@ is the same as the assertion that if `A` holds then `C` holds and if
 →-distrib-⊎ : ∀ {A B C : Set} → (A ⊎ B → C) ≃ ((A → C) × (B → C))
 →-distrib-⊎ =
   record
-    { to      = λ{ f → ⟨ f ∘ inj₁ , f ∘ inj₂ ⟩ }
+    { -- to : ( A ⊎ B → C) ) → ((A → C) × (B → C))
+      to      = λ{ f → ⟨ f ∘ inj₁ , f ∘ inj₂ ⟩ }
+      -- from : ((A → C) × (B → C)) → ( A ⊎ B → C) )
     ; from    = λ{ ⟨ g , h ⟩ → λ{ (inj₁ x) → g x ; (inj₂ y) → h y } }
+      -- from∘to :  ∀ ( x : A ⊎ B → C)  →  from ( to x ) ≡ x
+      --   f : A ⊎ B → C
+      --   extensionality : { (from ∘ to) id : (A ⊎ B → C) } → 
+      --     (∀ (x : A ⊎ B → C) → ( from ∘ to ) x ) ≡ id ) →
+      --     from ∘ to ≡ id 
     ; from∘to = λ{ f → extensionality λ{ (inj₁ x) → refl ; (inj₂ y) → refl } }
     ; to∘from = λ{ _ → refl }
     }
@@ -800,14 +807,18 @@ one of these laws is "more true" than the other.
 
 Show that the following property holds:
 ```agda
-postulate
-  ⊎-weak-× : ∀ {A B C : Set} → (A ⊎ B) × C → A ⊎ (B × C)
+-- postulate
+--   ⊎-weak-× : ∀ {A B C : Set} → (A ⊎ B) × C → A ⊎ (B × C)
 ```
 This is called a _weak distributive law_. Give the corresponding
 distributive law, and explain how it relates to the weak version.
 
 ```agda
 -- Your code goes here
+⊎-weak-× : ∀ {A B C : Set} → (A ⊎ B) × C → A ⊎ (B × C)
+⊎-weak-×  ⟨ inj₁ a , c ⟩ = inj₁ a
+⊎-weak-×  ⟨ inj₂ b , c ⟩ = inj₂ ⟨ b , c ⟩ 
+
 ```
 
 
@@ -815,13 +826,20 @@ distributive law, and explain how it relates to the weak version.
 
 Show that a disjunct of conjuncts implies a conjunct of disjuncts:
 ```agda
-postulate
-  ⊎×-implies-×⊎ : ∀ {A B C D : Set} → (A × B) ⊎ (C × D) → (A ⊎ C) × (B ⊎ D)
+-- postulate
+--   ⊎×-implies-×⊎ : ∀ {A B C D : Set} → (A × B) ⊎ (C × D) → (A ⊎ C) × (B ⊎ D)
 ```
 Does the converse hold? If so, prove; if not, give a counterexample.
 
 ```agda
 -- Your code goes here
+
+⊎×-implies-×⊎ : ∀ {A B C D : Set} → (A × B) ⊎ (C × D) → (A ⊎ C) × (B ⊎ D)
+⊎×-implies-×⊎ (inj₁ ⟨ a , b ⟩) = ⟨ inj₁ a , inj₁ b ⟩
+⊎×-implies-×⊎ (inj₂ ⟨ c , d ⟩) = ⟨ inj₂ c , inj₂ d ⟩
+
+-- the converse does not hold,
+-- counter example, ⟨ inj₁ a, inj₂ d ⟩, we can't find the result in (A × B) ⊎ (C × D)
 ```
 
 
