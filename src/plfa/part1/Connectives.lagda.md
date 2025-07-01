@@ -709,18 +709,46 @@ is the same as the assertion that if `A` holds then `C` holds and if
 →-distrib-⊎ =
   record
     { -- to : ( A ⊎ B → C) ) → ((A → C) × (B → C))
-      to      = λ{ f → ⟨ f ∘ inj₁ , f ∘ inj₂ ⟩ }
+      to      = λ{  f → ⟨ f ∘ inj₁ , f ∘ inj₂ ⟩ }
       -- from : ((A → C) × (B → C)) → ( A ⊎ B → C) )
     ; from    = λ{ ⟨ g , h ⟩ → λ{ (inj₁ x) → g x ; (inj₂ y) → h y } }
       -- from∘to :  ∀ ( x : A ⊎ B → C)  →  from ( to x ) ≡ x
-      --   f : A ⊎ B → C
-      --   extensionality : { (from ∘ to) id : (A ⊎ B → C) } → 
-      --     (∀ (x : A ⊎ B → C) → ( from ∘ to ) x ) ≡ id ) →
-      --     from ∘ to ≡ id 
-    ; from∘to = λ{ f → extensionality λ{ (inj₁ x) → refl ; (inj₂ y) → refl } }
+      --   f, x : (A ⊎ B) → C
+      --   extensionality : { (from ∘ to) Function.id : (A ⊎ B → C) → (A ⊎ B → C) } → 
+      --     (∀ (x : A ⊎ B → C) → (( from ∘ to ) x ) ≡ (Function.id x) ) →
+      --     from ∘ to ≡ Function.id
+      --   
+      --     λ{ (inj₁ x) → refl ; (inj₂ y) → refl } :
+      --       (∀ (x : A ⊎ B → C) → (( from ∘ to ) x ) ≡ (Function.id x) )
+      --     but the input type is (inj₁ x) and (inj₂ y) not a function type!
+    -- ; from∘to = λ{ f → extensionality  λ{ (inj₁ x) → refl ; (inj₂ y) → refl } }
+    ; from∘to = λ { f →
+                let sub = λ f' → 
+                  begin
+                    ((λ { ⟨ g , h ⟩ → λ { (inj₁ x) → g x ; (inj₂ y) → h y } })
+                     ((λ { f → ⟨ (λ x → f (inj₁ x)) , (λ x → f (inj₂ x)) ⟩ }) f'))
+                  ≡⟨⟩
+                    ( (λ { ⟨ g , h ⟩ → λ { (inj₁ x) → g x ; (inj₂ y) → h y } })
+                      ⟨ (λ x → f' (inj₁ x)) , (λ x → f' (inj₂ x)) ⟩ )
+                  ≡⟨⟩
+                    λ { (inj₁ x) → (λ x → f' (inj₁ x)) x ; (inj₂ y) → (λ x → f' (inj₂ x)) y }
+                  ≡⟨⟩
+                    
+                  ∎ 
+                in extensionality sub
+                } 
     ; to∘from = λ{ _ → refl }
     }
+  
 ```
+copied begin
+postulate
+  extensionality : ∀ {A B : Set} {f g : A → B}
+    → (∀ (x : A) → f x ≡ g x)
+      -----------------------
+    → f ≡ g
+copied end
+
 
 Corresponding to the law
 
