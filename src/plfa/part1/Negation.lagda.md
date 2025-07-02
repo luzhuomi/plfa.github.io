@@ -195,8 +195,23 @@ is irreflexive, that is, `n < n` holds for no `n`.
 
 ```agda
 -- Your code goes here
-<-irreflexive : ∀ { n : ℕ } → ¬ (n Data.Nat.< n)
-<-irreflexive {0} = λ { z<z → {!!}  }
+open import plfa.part1.Relations using (_≤_; _<_; s<s)
+
+
+zero-not-<-zero : ¬ (0 < 0)
+zero-not-<-zero = λ()
+
+-- suc-n-not-<-suc-n : ∀ {n : ℕ} → ¬ ((suc n) < (suc n))
+suc-n-not-<-suc-n : ∀ {n : ℕ} → ((suc n) < (suc n)) → ⊥ 
+suc-n-not-<-suc-n {zero} (s<s z<z) = zero-not-<-zero z<z
+suc-n-not-<-suc-n {suc n} (s<s m<m) = suc-n-not-<-suc-n m<m
+
+
+-- <-irreflexive : ∀ { n : ℕ } → ¬ (n < n)
+<-irreflexive : ∀ { n : ℕ } → (n < n) → ⊥ 
+<-irreflexive {0} = zero-not-<-zero
+<-irreflexive {suc n} = suc-n-not-<-suc-n
+                                                    
 ```
 
 
