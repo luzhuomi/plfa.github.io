@@ -176,6 +176,9 @@ Indeed, we can show any two proofs of a negation are equal:
 ```agda
 assimilation : ∀ {A : Set} (¬x ¬x′ : ¬ A) → ¬x ≡ ¬x′
 assimilation ¬x ¬x′ = extensionality (λ x → contradiction x ¬x)
+-- what is contradiction?
+-- contradiction takes two terms and creates an contradiction ⊥ which is () hence equivalence is implied.
+
 ```
 Evidence for `¬ A` implies that any evidence of `A`
 immediately leads to a contradiction.  But extensionality
@@ -192,6 +195,8 @@ is irreflexive, that is, `n < n` holds for no `n`.
 
 ```agda
 -- Your code goes here
+<-irreflexive : ∀ { n : ℕ } → ¬ (n Data.Nat.< n)
+<-irreflexive {0} = λ { z<z → {!!}  }
 ```
 
 
