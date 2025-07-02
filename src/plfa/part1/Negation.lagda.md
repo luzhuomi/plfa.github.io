@@ -211,7 +211,6 @@ suc-n-not-<-suc-n {suc n} (s<s m<m) = suc-n-not-<-suc-n m<m
 <-irreflexive : ∀ { n : ℕ } → (n < n) → ⊥ 
 <-irreflexive {0} = zero-not-<-zero
 <-irreflexive {suc n} = suc-n-not-<-suc-n
-                                                    
 ```
 
 
