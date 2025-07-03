@@ -734,6 +734,10 @@ similar to that used for totality.
 
 ```agda
 -- Your code goes here
+
+_>_ : ℕ → ℕ → Set
+m > n = n < m
+
 data Trichotomy (m n : ℕ) : Set where
 
   tr-forward :
@@ -747,7 +751,7 @@ data Trichotomy (m n : ℕ) : Set where
     → Trichotomy m n
 
   tr-flipped :
-    n < m
+    m > n
   ----------------
     → Trichotomy m n
 

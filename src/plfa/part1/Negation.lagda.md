@@ -241,6 +241,30 @@ suc-n≢0 = λ ()
 0≯n : ∀ { n : ℕ } → (0 > n) → ⊥
 0≯n = λ ()
 
+m≢n→suc-m≢suc-n : ∀ { m n : ℕ }
+  → ¬ m ≡ n
+  -- → ¬ suc m ≡ suc n -- same as below 
+  → suc m ≡ suc n
+  → ⊥ 
+m≢n→suc-m≢suc-n ¬m≡n = λ { refl → (¬m≡n refl) }
+
+m≯n→suc-m≯suc-n : ∀ { m n : ℕ }
+  → ¬ m > n
+  -- → ¬ suc m > suc n -- same as below
+  → suc m > suc n
+  → ⊥
+m≯n→suc-m≯suc-n ¬m>n = λ { (s<s n<m) → (¬m>n n<m) }
+  
+
+m≮n→suc-m≮suc-n : ∀ { m n : ℕ }
+  → ¬ m < n
+  -- → ¬ suc m < suc n -- same as below
+  → suc m < suc n
+  → ⊥
+m≮n→suc-m≮suc-n ¬m<n = λ { (s<s m<n) → (¬m<n m<n) }
+
+
+
 data Trichotomy (m n : ℕ) : Set where
 
   tr-forward :
@@ -268,13 +292,14 @@ data Trichotomy (m n : ℕ) : Set where
 <-trichotomy : ∀ (m n : ℕ) → Trichotomy m n
 <-trichotomy zero zero       = tr-same (refl) zero-not-<-zero zero-not-<-zero
 <-trichotomy zero (suc n)    = tr-forward (z<s {n}) 0≢suc-n 0≯n
-<-trichotomy (suc m) zero    = tr-flipped (z<s {m}) 0≯n suc-n≢0 
+<-trichotomy (suc m) zero    = tr-flipped (z<s {m}) 0≯n suc-n≢0
+
 <-trichotomy (suc m) (suc n) = helper (<-trichotomy m n)
   where
   helper : Trichotomy m n → Trichotomy (suc m) (suc n)
-  helper (tr-forward m<n) = tr-forward (s<s {m} {n} m<n)
-  helper (tr-same m≡n)    = tr-same (cong suc m≡n)
-  helper (tr-flipped n<m) = tr-flipped (s<s {n} {m} n<m)
+  helper (tr-forward m<n m≢n m≯n) = tr-forward (s<s {m} {n} m<n) (m≢n→suc-m≢suc-n m≢n) (m≯n→suc-m≯suc-n m≯n)
+  helper (tr-same m≡n m≮n m≯n)    = tr-same (Relation.Binary.PropositionalEquality.cong suc m≡n) (m≮n→suc-m≮suc-n m≮n) (m≯n→suc-m≯suc-n m≯n)
+  helper (tr-flipped n<m m≮n m≢n) = tr-flipped (s<s {n} {m} n<m) (m≮n→suc-m≮suc-n m≮n)  (m≢n→suc-m≢suc-n m≢n) 
 
 ```
 
