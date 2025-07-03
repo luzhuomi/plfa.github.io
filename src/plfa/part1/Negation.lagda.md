@@ -314,6 +314,15 @@ This result is an easy consequence of something we've proved previously.
 
 ```agda
 -- Your code goes here
+open import pfla.part1.Isomorphism using ( _∘_ )
+demorgan : ∀ { A B : Set } → ¬ ( A ⊎ B ) ≃ (¬ A) × (¬ B)
+demorgan =
+  record 
+    { to      = λ { ¬A⊎B →  ⟨  ¬A⊎B ∘ inj₁ , ¬A⊎B ∘ inj₂ ⟩ }
+    ; from    = λ { ⟨ ¬A , ¬B ⟩  → λ { (inj₁ a) → ¬A a ; (inj₂ b) → ¬B b } }
+    ; from∘to = ?
+    ; to∘from = λ { _ → refl }
+    }
 ```
 
 
