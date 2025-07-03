@@ -19,7 +19,7 @@ open import Data.Empty using (⊥; ⊥-elim)
 open import Data.Sum using (_⊎_; inj₁; inj₂)
 open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 open import Relation.Nullary.Negation using (contradiction)
-open import plfa.part1.Isomorphism using (_≃_; extensionality)
+open import plfa.part1.Isomorphism using (_≃_; extensionality; _∘_; _≲_)
 ```
 
 
@@ -314,13 +314,13 @@ This result is an easy consequence of something we've proved previously.
 
 ```agda
 -- Your code goes here
-open import pfla.part1.Isomorphism using ( _∘_ )
-demorgan : ∀ { A B : Set } → ¬ ( A ⊎ B ) ≃ (¬ A) × (¬ B)
-demorgan =
+
+demorgans-law-2 : ∀ { A B : Set } → ¬ ( A ⊎ B ) ≃ (¬ A) × (¬ B)
+demorgans-law-2 =
   record 
     { to      = λ { ¬A⊎B →  ⟨  ¬A⊎B ∘ inj₁ , ¬A⊎B ∘ inj₂ ⟩ }
     ; from    = λ { ⟨ ¬A , ¬B ⟩  → λ { (inj₁ a) → ¬A a ; (inj₂ b) → ¬B b } }
-    ; from∘to = ?
+    ; from∘to = λ { f → extensionality λ { (inj₁ a) → refl ; (inj₂ b) → refl } }
     ; to∘from = λ { _ → refl }
     }
 ```
@@ -332,6 +332,19 @@ Do we also have the following?
 
 If so, prove; if not, can you give a relation weaker than
 isomorphism that relates the two sides?
+
+
+```agda
+-- only implication, not even embedding
+demorgans-law-1 : ∀ { A B : Set } → (¬ A) ⊎ (¬ B) → ¬ (A × B)
+demorgans-law-1 (inj₁ ¬A) ⟨ a , b ⟩ = ¬A a
+demorgans-law-1 (inj₂ ¬B) ⟨ a , b ⟩ = ¬B b
+
+
+-- demorgans-law-1' : ∀ { A B : Set } → ¬ (A × B) → (¬ A) ⊎ (¬ B)
+-- demorgans-law-1'  ¬(A×B) = inj₁ (λ {a → ( ¬(A×B) ⟨ a , () ⟩ ) }) -- no b
+
+```
 
 
 ## Intuitive and Classical logic
