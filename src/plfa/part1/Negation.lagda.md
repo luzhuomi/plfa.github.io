@@ -195,7 +195,7 @@ is irreflexive, that is, `n < n` holds for no `n`.
 
 ```agda
 -- Your code goes here
-open import plfa.part1.Relations using (_≤_; _<_; s<s)
+open import plfa.part1.Relations using (_≤_; _<_; s<s ; z<s)
 
 
 zero-not-<-zero : ¬ (0 < 0)
@@ -229,6 +229,53 @@ but that when one holds the negation of the other two must also hold.
 
 ```agda
 -- Your code goes here
+_>_ : ℕ → ℕ → Set
+m > n = n < m
+
+0≢suc-n : ∀ { n : ℕ } → (0 ≡ (suc n)) → ⊥
+0≢suc-n = λ ()
+
+suc-n≢0 : ∀ { n : ℕ } → ((suc n) ≡ 0) → ⊥
+suc-n≢0 = λ ()
+
+0≯n : ∀ { n : ℕ } → (0 > n) → ⊥
+0≯n = λ ()
+
+data Trichotomy (m n : ℕ) : Set where
+
+  tr-forward :
+    m < n
+    → ¬ (m ≡ n)
+    → ¬ (m > n) 
+  ----------------
+    → Trichotomy m n
+
+  tr-same :
+    m ≡ n
+    → ¬ (m < n)
+    → ¬ (m > n)
+  ---------------
+    → Trichotomy m n
+
+  tr-flipped :
+    m > n
+    → ¬ (m < n)
+    → ¬ (m ≡ n)
+  ----------------
+    → Trichotomy m n
+
+
+<-trichotomy : ∀ (m n : ℕ) → Trichotomy m n
+<-trichotomy zero zero       = tr-same (refl) zero-not-<-zero zero-not-<-zero
+<-trichotomy zero (suc n)    = tr-forward (z<s {n}) 0≢suc-n 0≯n
+<-trichotomy (suc m) zero    = tr-flipped (z<s {m}) 0≯n suc-n≢0 
+<-trichotomy (suc m) (suc n) = helper (<-trichotomy m n)
+  where
+  helper : Trichotomy m n → Trichotomy (suc m) (suc n)
+  helper (tr-forward m<n) = tr-forward (s<s {m} {n} m<n)
+  helper (tr-same m≡n)    = tr-same (cong suc m≡n)
+  helper (tr-flipped n<m) = tr-flipped (s<s {n} {m} n<m)
+
 ```
 
 #### Exercise `⊎-dual-×` (recommended)
