@@ -558,12 +558,15 @@ em→pierce em {B} {C} f with em {B} -- f : (B → C) → B
 ... | inj₂ ¬b = f λ { b → ⊥-elim (¬b b) } -- ⊥-elim give us any thing
 
 
-pierce→em : (∀ { B C : Set } → ((B → C) → B) → B)
+pierce→dne : (∀ {A B : Set } → ((A → B) → A) → A)
            ----------------------------------------
-          → (∀ {A : Set} → A ⊎ ¬ A)
-pierce→em pierce {A} = inj₁ (pierce' a→a→a )
-  where pierce' = pierce {A} {⊥}
-        a→a→a = λ{k → k {!!}}
+          →  (∀ {C : Set} → (¬ (¬ C)) → C)
+pierce→dne pierce {A} ¬¬a = pierce' f 
+  where
+    -- 3pierce' : ((A → ⊥) → A) → A)
+    pierce' = pierce {A} {⊥}
+    f : ¬ A → A -- i.e. ( A → ⊥ ) → A
+    f ¬a = ⊥-elim (¬¬a ¬a) 
         
 ```
 
