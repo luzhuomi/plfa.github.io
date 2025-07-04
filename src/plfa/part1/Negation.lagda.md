@@ -563,7 +563,7 @@ pierce→dne : (∀ {A B : Set } → ((A → B) → A) → A)
           →  (∀ {C : Set} → (¬ (¬ C)) → C)
 pierce→dne pierce {A} ¬¬a = pierce' f 
   where
-    -- 3pierce' : ((A → ⊥) → A) → A)
+    -- pierce' : ((A → ⊥) → A) → A)
     pierce' = pierce {A} {⊥}
     f : ¬ A → A -- i.e. ( A → ⊥ ) → A
     f ¬a = ⊥-elim (¬¬a ¬a) 
@@ -583,6 +583,24 @@ of two stable formulas is stable.
 
 ```agda
 -- Your code goes here
+neg-is-stable : ∀ {A : Set }
+  ---------------
+  → Stable (¬ A)
+neg-is-stable ¬¬¬a a = ¬a a
+  where
+    ¬a = ¬¬¬-elim ¬¬¬a
+
+conj-stable : ∀ {A B : Set }
+  → Stable A
+  → Stable B
+  -----------------
+  → Stable (A × B)
+conj-stable  ¬¬a→a ¬¬b→b ¬¬axb =  ⟨ ¬¬a→a ¬¬a , ¬¬b→b ¬¬b ⟩
+  where 
+    ¬¬a = λ { ¬a →  ¬¬axb (λ { ⟨ a , b ⟩ → ¬a a } ) }
+    ¬¬b = λ { ¬b →  ¬¬axb (λ { ⟨ a , b ⟩ → ¬b b } ) }
+    
+
 ```
 
 ## Standard library
