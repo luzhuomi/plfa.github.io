@@ -90,9 +90,21 @@ dependent product is ambiguous.
 
 Show that universals distribute over conjunction:
 ```agda
-postulate
-  ∀-distrib-× : ∀ {A : Set} {B C : A → Set} →
-    (∀ (x : A) → B x × C x) ≃ (∀ (x : A) → B x) × (∀ (x : A) → C x)
+-- postulate
+--   ∀-distrib-× : ∀ {A : Set} {B C : A → Set} →
+--    (∀ (x : A) → B x × C x) ≃ (∀ (x : A) → B x) × (∀ (x : A) → C x)
+
+
+∀-distrib-× : ∀ {A : Set} {B C : A → Set} →
+  (∀ (x : A) → B x × C x) ≃ (∀ (x : A) → B x) × (∀ (x : A) → C x)
+∀-distrib-× =
+  record {
+    to = λ f → ⟨  proj₁ ∘ f ,  proj₂ ∘ f ⟩
+  ; from = λ { ⟨ h , g ⟩ a → ⟨ h a , g a ⟩ }
+  ; from∘to = λ x → refl
+  ; to∘from = λ y → refl
+  }
+
 ```
 Compare this with the result (`→-distrib-×`) in
 Chapter [Connectives](/Connectives/).
