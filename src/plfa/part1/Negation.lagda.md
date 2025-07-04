@@ -493,6 +493,81 @@ Show that each of these implies all the others.
 
 ```agda
 -- Your code goes here
+
+em→dne-sub : ∀ { A : Set }
+  → A ⊎ ¬ A
+  → (¬ (¬ A)) → A
+em→dne-sub (inj₁ a) = λ { ¬¬a → a }
+em→dne-sub (inj₂ ¬a) = (λ { ¬¬a → ⊥-elim (¬¬a ¬a) })
+
+
+em→dne : (∀ { A : Set } → A ⊎ ¬ A)
+       ------------------------------
+       → (∀ {B : Set} → (¬ (¬ B)) → B)
+em→dne = λ x x₁ → em→dne-sub x x₁
+
+
+
+
+dne→demorgan : (∀ { A : Set } → ( (¬ (¬ A)) → A))
+             ------------------------------------------------
+             → (∀ { A B : Set } → (¬ (¬ A × ¬ B)) → A ⊎ B) 
+dne→demorgan dne x₁ = dne ¬¬A⊎B
+  -- note x₁ : (¬ (¬ A × ¬ B))
+  where ¬¬A⊎B = contraposition (_≃_.to demorgans-law-2) x₁
+
+
+demorgan→em : (∀ { A B : Set } → (¬ (¬ A × ¬ B)) → A ⊎ B)
+            ---------------------------------------------
+            → (∀ { A : Set } → A ⊎ ¬ A )
+demorgan→em dmg {A} = dmg' x
+  where dmg' = dmg {A} {¬ A}
+        x : ¬ ( ¬ A × ¬ ¬ A)
+        x = λ { ⟨ ¬a , ¬¬a ⟩ → (¬¬a ¬a)}
+
+em→impl-disj :  (∀ { A : Set } → A ⊎ ¬ A)
+               ---------------------------------------------
+               → (∀ { C B : Set } → (C → B) → ¬ C ⊎ B )
+em→impl-disj em {C} {B} c→b with (em {C})
+...  | (inj₁ c)  = inj₂ (c→b c)
+...  | (inj₂ ¬c) = inj₁ ¬c
+
+
+-- copied from plf1.part1.Connectives
+
+⊎-comm : ∀ {A B : Set} → (A ⊎ B) ≃ (B ⊎ A)
+⊎-comm = record
+  { to      = λ { (inj₁ a) → (inj₂ a) ; (inj₂ b) → (inj₁ b) }
+  ; from    = λ { (inj₁ b) → (inj₂ b) ; (inj₂ a) → (inj₁ a) }
+  ; from∘to = λ { (inj₁ a) → refl  ; (inj₂ b) → refl }
+  ; to∘from = λ { (inj₁ b) → refl  ; (inj₂ a) → refl }
+  }
+
+impl-disj→em : (∀ { C B : Set } → (C → B) → ¬ C ⊎ B )
+               ----------------------------------------
+               → (∀ { A : Set } → A ⊎ ¬ A)
+impl-disj→em impl-disj {A} = (_≃_.to ⊎-comm) (impl-disj' λ{a → a})
+  where impl-disj' = impl-disj {A} {A}
+
+
+em→pierce : ( ∀ { A : Set } → A ⊎ ¬ A )
+            --------------------------------------
+            → (∀ { B C : Set } → ((B → C) → B) → B)
+em→pierce em {B} {C} f with em {B} -- f : (B → C) → B
+... | inj₁ b  = b
+... | inj₂ ¬b = f λ { b → ⊥-elim (¬b b) } -- ⊥-elim give us any thing
+
+
+pierce→dne : (∀ {A B : Set } → ((A → B) → A) → A)
+           ----------------------------------------
+          →  (∀ {C : Set} → (¬ (¬ C)) → C)
+pierce→dne pierce {A} ¬¬a = pierce' f 
+  where
+    -- pierce' : ((A → ⊥) → A) → A)
+    pierce' = pierce {A} {⊥}
+    f : ¬ A → A -- i.e. ( A → ⊥ ) → A
+    f ¬a = ⊥-elim (¬¬a ¬a) 
+        
 ```
 
 
@@ -508,6 +583,24 @@ of two stable formulas is stable.
 
 ```agda
 -- Your code goes here
+neg-is-stable : ∀ {A : Set }
+  ---------------
+  → Stable (¬ A)
+neg-is-stable ¬¬¬a a = ¬a a
+  where
+    ¬a = ¬¬¬-elim ¬¬¬a
+
+conj-stable : ∀ {A B : Set }
+  → Stable A
+  → Stable B
+  -----------------
+  → Stable (A × B)
+conj-stable  ¬¬a→a ¬¬b→b ¬¬axb =  ⟨ ¬¬a→a ¬¬a , ¬¬b→b ¬¬b ⟩
+  where 
+    ¬¬a = λ { ¬a →  ¬¬axb (λ { ⟨ a , b ⟩ → ¬a a } ) }
+    ¬¬b = λ { ¬b →  ¬¬axb (λ { ⟨ a , b ⟩ → ¬b b } ) }
+    
+
 ```
 
 ## Standard library
