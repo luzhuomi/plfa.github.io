@@ -113,9 +113,36 @@ Chapter [Connectives](/Connectives/).
 
 Show that a disjunction of universals implies a universal of disjunctions:
 ```agda
+{-
 postulate
   ⊎∀-implies-∀⊎ : ∀ {A : Set} {B C : A → Set} →
     (∀ (x : A) → B x) ⊎ (∀ (x : A) → C x) → ∀ (x : A) → B x ⊎ C x
+-}
+
+
+⊎∀-implies-∀⊎ : ∀ {A : Set} {B C : A → Set} →
+  (∀ (x : A) → B x) ⊎ (∀ (x : A) → C x) → ∀ (x : A) → B x ⊎ C x
+⊎∀-implies-∀⊎ ⊎∀ a with ⊎∀
+...                   | inj₁ a→b = inj₁ (a→b a)
+...                   | inj₂ a→c = inj₂ (a→c a)
+
+
+
+{-
+the converse does not hold
+∀⊎-implies-⊎∀ : ∀ {A : Set} {B C : A → Set} →
+  (∀ (x : A) → B x ⊎ C x) → (∀ (x : A) → B x) ⊎ (∀ (x : A) → C x)
+∀⊎-implies-⊎∀ a→b⊎c = {!!} -- we need a choice, but we don't know left or right
+
+
+Goal: ((x : A) → B x) ⊎ ((x : A) → C x)
+————————————————————————————————————————————————————————————
+a→b⊎c : (x : A) → B x ⊎ C x
+C     : A → Set   (not in scope)
+B     : A → Set   (not in scope)
+A     : Set   (not in scope)
+-}
+
 ```
 Does the converse hold? If so, prove; if not, explain why.
 
@@ -134,6 +161,17 @@ Show that `∀ (x : Tri) → B x` is isomorphic to `B aa × B bb × B cc`.
 
 Hint: you will need to use [`∀-extensionality`](/Isomorphism/#extensionality).
 
+```agda
+
+∀-× : ∀ { B : Tri → Set } → (∀ (x : Tri) → B x) ≃ (B aa × B bb × B cc)
+∀-×  = record
+  { to = λ tri→b → ⟨ tri→b aa , ⟨ tri→b bb , tri→b cc ⟩ ⟩ 
+  ; from = λ y → λ{ aa → proj₁ y ; bb → (proj₁ ∘ proj₂) y ; cc → (proj₂ ∘ proj₂) y } 
+  ; from∘to = λ x → ∀-extensionality λ{ aa → refl ; bb → refl ; cc → refl}
+  ; to∘from = λ y → refl
+  }
+
+```
 
 ## Existentials
 
@@ -154,6 +192,9 @@ record Σ (A : Set) (B : A → Set) : Set where
     proj₁ : A
     proj₂ : B proj₁
 ```
+
+> KL's note: `forall` is a function (x : A) → (B x), `exist` is a dependant tuple ⟨ x : A, B x ⟩ .
+
 Here we have a dependent record, where the type of `proj₂`
 refers to the field `proj₁`.
 Evidence that `Σ A B` holds is of the form
