@@ -286,9 +286,15 @@ postulate
 
 Show that an existential of conjunctions implies a conjunction of existentials:
 ```agda
-postulate
-  ∃×-implies-×∃ : ∀ {A : Set} {B C : A → Set} →
-    ∃[ x ] (B x × C x) → (∃[ x ] B x) × (∃[ x ] C x)
+-- postulate
+--  ∃×-implies-×∃ : ∀ {A : Set} {B C : A → Set} →
+--    ∃[ x ] (B x × C x) → (∃[ x ] B x) × (∃[ x ] C x)
+
+
+∃×-implies-×∃ : ∀ {A : Set} {B C : A → Set} →
+  ∃[ x ] (B x × C x) → (∃[ x ] B x) × (∃[ x ] C x)
+∃×-implies-×∃ ⟨ x , bc ⟩ = ⟨ ⟨ x , proj₁ bc ⟩ , ⟨ x , proj₂ bc ⟩ ⟩  
+
 ```
 Does the converse hold? If so, prove; if not, explain why.
 
