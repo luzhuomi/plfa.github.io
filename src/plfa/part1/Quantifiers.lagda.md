@@ -337,12 +337,45 @@ Show that an existential of conjunctions implies a conjunction of existentials:
 ∃×-implies-×∃ ⟨ x , bc ⟩ = ⟨ ⟨ x , proj₁ bc ⟩ , ⟨ x , proj₂ bc ⟩ ⟩  
 
 ```
+
+
+
 Does the converse hold? If so, prove; if not, explain why.
+
+```agda
+-- the converse of the above
+{-
+×∃-implies-∃× : ∀ {A : Set} {B C : A → Set} →
+ ( (∃[ x ] B x) × (∃[ x ] C x) ) → ∃[ x ] (B x × C x)
+×∃-implies-∃× ⟨ ⟨ x₁ , b ⟩ , ⟨ x₂ , c ⟩ ⟩  = ⟨  ? , {! ⟨ b , c ⟩!} ⟩ -- won't work because we don't know which x to use
+-}
+```
+
 
 #### Exercise `∃-⊎` (practice)
 
 Let `Tri` and `B` be as in Exercise `∀-×`.
 Show that `∃[ x ] B x` is isomorphic to `B aa ⊎ B bb ⊎ B cc`.
+
+
+```agda
+∃-⊎ : ∀ { B : Tri → Set } → (∃[ x ] B x) ≃ (B aa ⊎ B bb ⊎ B cc)
+∃-⊎  = record
+  { to = λ { ⟨ aa , b ⟩ →  inj₁ b
+           ; ⟨ bb , b ⟩ → (inj₂ ∘ inj₁) b
+           ; ⟨ cc , b ⟩ → (inj₂ ∘ inj₂) b
+           }
+  ; from = λ { (inj₁ b)   → ⟨ aa , b ⟩
+             ; (inj₂ (inj₁ b))   → ⟨ bb , b ⟩
+             ; (inj₂ (inj₂ b))   → ⟨ cc , b ⟩             
+             }
+  ; from∘to = λ { ⟨ aa , b ⟩ → refl ; ⟨ bb , b ⟩ → refl ; ⟨ cc , b ⟩  → refl } 
+
+  ; to∘from = λ { (inj₁ b) → refl ; (inj₂ (inj₁ b)) → refl ; (inj₂ (inj₂ b)) → refl }
+  }
+
+
+```
 
 
 ## An existential example
@@ -384,7 +417,7 @@ the constant term in a sum last. Here we've reversed each of those
 conventions, because doing so eases the proof.
 
 Here is the proof in the forward direction:
-```agda
+```agda 
 even-∃ : ∀ {n : ℕ} → even n → ∃[ m ] (    m * 2 ≡ n)
 odd-∃  : ∀ {n : ℕ} →  odd n → ∃[ m ] (1 + m * 2 ≡ n)
 
@@ -453,7 +486,39 @@ by `2 * m` and `2 * m + 1`?  Rewrite the proofs of `∃-even` and `∃-odd` when
 restated in this way.
 
 ```agda
+
+import Relation.Binary.PropositionalEquality as Eq
+open Eq using (_≡_; refl; trans; sym; cong; cong-app; subst)
+open Eq.≡-Reasoning using (begin_; step-≡-∣; step-≡; step-≡-⟩ ; _∎)
+
+open import Data.Nat.Properties using (+-assoc; +-identityʳ; +-suc; +-comm)
+
 -- Your code goes here
+even-∃' : ∀ {n : ℕ} → even n → ∃[ m ] (    2 * m ≡ n)
+odd-∃'  : ∀ {n : ℕ} →  odd n → ∃[ m ] (2 * m + 1 ≡ n)
+
+
+
+sub-pf : ∀ { m : ℕ } →
+         suc (m + suc (m + 0)) ≡ suc (m + (m + 0) + 1)
+sub-pf {m} =
+  begin
+    suc (m + suc (m + 0))
+  ≡⟨⟩
+    suc (m + (1 + (m + 0)))  
+  ≡⟨ cong suc ( cong (m +_) ( +-comm 1 (m + 0) ) ) ⟩ 
+    suc (m + ((m + 0) + 1))
+  ≡⟨ cong suc (sym (+-assoc m (m + 0) 1)) ⟩  
+    suc (m + (m + 0) + 1)
+  ∎
+
+
+even-∃' even-zero = ⟨ zero , refl ⟩
+even-∃' (even-suc o) with odd-∃' o
+...                     | ⟨ m , refl ⟩ = ⟨ (suc m) ,  sub-pf  ⟩ 
+
+
+odd-∃' = {!!} 
 ```
 
 #### Exercise `∃-+-≤` (practice)
