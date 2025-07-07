@@ -518,7 +518,8 @@ even-∃' (even-suc o) with odd-∃' o
 ...                     | ⟨ m , refl ⟩ = ⟨ (suc m) ,  sub-pf  ⟩ 
 
 
-odd-∃' = {!!} 
+odd-∃' (odd-suc e) with even-∃' e
+...                     | ⟨ m , refl ⟩ = ⟨ m , {!!} ⟩ 
 ```
 
 #### Exercise `∃-+-≤` (practice)
