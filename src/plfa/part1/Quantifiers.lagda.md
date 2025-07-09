@@ -14,7 +14,7 @@ This chapter introduces universal and existential quantification.
 ```agda
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl)
-open import Data.Nat using (ℕ; zero; suc; _+_; _*_)
+open import Data.Nat using (ℕ; zero; suc; _+_; _*_ ; _≤_ )
 open import Relation.Nullary using (¬_)
 open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 open import Data.Sum using (_⊎_; inj₁; inj₂)
@@ -499,9 +499,9 @@ odd-∃'  : ∀ {n : ℕ} →  odd n → ∃[ m ] (2 * m + 1 ≡ n)
 
 
 
-sub-pf : ∀ { m : ℕ } →
+sub-pf-even-∃' : ∀ { m : ℕ } →
          suc (m + suc (m + 0)) ≡ suc (m + (m + 0) + 1)
-sub-pf {m} =
+sub-pf-even-∃' {m} =
   begin
     suc (m + suc (m + 0))
   ≡⟨⟩
@@ -515,12 +515,12 @@ sub-pf {m} =
 
 even-∃' even-zero = ⟨ zero , refl ⟩
 even-∃' (even-suc o) with odd-∃' o
-...                     | ⟨ m , refl ⟩ = ⟨ (suc m) ,  sub-pf  ⟩ 
+...                     | ⟨ m , refl ⟩ = ⟨ (suc m) ,  sub-pf-even-∃'  ⟩ 
 
 
-sub-pf' : ∀ { m : ℕ } →
+sub-pf-odd-∃' : ∀ { m : ℕ } →
         m + (m + 0) + 1 ≡ suc (m + (m + 0))
-sub-pf' {m} =
+sub-pf-odd-∃' {m} =
   begin
     m + (m + 0) + 1
   ≡⟨  +-comm (m + (m + 0)) 1  ⟩
@@ -531,7 +531,7 @@ sub-pf' {m} =
 
 
 odd-∃' (odd-suc e) with even-∃' e
-...                     | ⟨ m , refl ⟩ = ⟨ m , sub-pf' ⟩ 
+...                     | ⟨ m , refl ⟩ = ⟨ m , sub-pf-odd-∃' {m} ⟩ 
 ```
 
 #### Exercise `∃-+-≤` (practice)
@@ -541,6 +541,101 @@ Show that `y ≤ z` holds if and only if there exists a `x` such that
 
 ```agda
 -- Your code goes here
+
+open _≤_ using ( z≤n ; s≤s )
+
+
+sub-pf-∃-+-≤→ : ∀ {x y z : ℕ }
+  → x + y ≡ z
+  -------------------
+  → x + suc y ≡ suc z
+sub-pf-∃-+-≤→ {x} {y} {z}  x+y≡z =
+  begin
+    x + suc y
+  ≡⟨ Data.Nat.Properties.+-suc x y ⟩
+    suc (x + y)
+  ≡⟨ cong suc x+y≡z ⟩ 
+    suc z 
+  ∎ 
+
+
+
+
+∃-+-≤→ : ∀ { y z : ℕ }
+  → y ≤ z
+  ----------------------
+  → ∃[ x ] ( x + y ≡ z )
+∃-+-≤→ {0} {z} z≤n = ⟨ z ,  +-identityʳ z  ⟩
+∃-+-≤→ {suc y} {suc z} (s≤s y≤z) with (∃-+-≤→ {y} {z} y≤z)
+...                                 | ⟨ x , x+y≡z ⟩ = ⟨ x , sub-pf-∃-+-≤→ {x} {y} {z} x+y≡z ⟩
+
+
+-- copied from Equality.lagda.md
+≡→≤ : ∀ {m n : ℕ}
+  → m ≡ n
+  --------
+  → m ≤ n
+≡→≤ {zero} {zero} refl = z≤n 
+≡→≤ {suc m} {suc n} refl = s≤s (≡→≤ {m} {n} refl)
+
+
+≤-refl : ∀ {n : ℕ}
+    -----
+  → n ≤ n
+≤-refl {zero} = z≤n
+≤-refl {suc n} = s≤s ≤-refl
+
+
+≤-trans : ∀ {m n p : ℕ}
+  → m ≤ n
+  → n ≤ p
+    -----
+  → m ≤ p
+≤-trans z≤n       _          =  z≤n
+≤-trans (s≤s m≤n) (s≤s n≤p)  =  s≤s (≤-trans m≤n n≤p)
+
+
+module ≤-Reasoning  where
+
+  infix  1 begin-≤_
+  infixr 2 step-≤-∣ step-≤-⟩
+  infix  3 _∎≤
+
+  begin-≤_ : ∀ {x y : ℕ} → x ≤ y → x ≤ y
+  begin-≤ x≤y  =  x≤y
+
+  step-≤-∣ : ∀ (x : ℕ) {y : ℕ} → x ≤ y → x ≤ y
+  step-≤-∣ x x≤y  =  x≤y
+
+  step-≤-⟩ : ∀ (x : ℕ) {y z : ℕ} → y ≤ z → x ≤ y → x ≤ z
+  step-≤-⟩ x y≤z x≤y  =  ≤-trans x≤y y≤z
+
+  syntax step-≤-∣ x x≤y      =  x ≤⟨⟩ x≤y
+  syntax step-≤-⟩ x y≤z x≤y  =  x ≤⟨  x≤y ⟩ y≤z
+
+  _∎≤ : ∀ (x : ℕ) → x ≤ x
+  x ∎≤  =  ≤-refl
+
+open ≤-Reasoning
+-- end of copied
+
+sub-pf-∃-+-≤← : ∀ { x y z : ℕ }
+  → x + suc y ≡ z
+  ---------------
+  → suc y ≤ z
+sub-pf-∃-+-≤← {0} {y} {z} sy≡z = ≡→≤  sy≡z 
+sub-pf-∃-+-≤← {suc x} {y} {z} sx+sy≡z = {!!}
+
+
+  
+
+∃-+-≤← : ∀ { y z : ℕ }
+  → ∃[ x ] ( x + y ≡ z )
+  ----------------------
+  → y ≤ z
+∃-+-≤← {0} {z} ⟨ x , x+y≡z ⟩ = z≤n
+∃-+-≤← {suc y} {z} ⟨ x , x+sy≡z ⟩ = {! sub-pf-∃-+-≤← {x} {suc y} {z}  x+sy≡z!}
+
 ```
 
 
