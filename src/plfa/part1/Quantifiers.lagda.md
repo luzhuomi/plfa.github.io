@@ -570,72 +570,22 @@ sub-pf-∃-+-≤→ {x} {y} {z}  x+y≡z =
 ...                                 | ⟨ x , x+y≡z ⟩ = ⟨ x , sub-pf-∃-+-≤→ {x} {y} {z} x+y≡z ⟩
 
 
--- copied from Equality.lagda.md
-≡→≤ : ∀ {m n : ℕ}
-  → m ≡ n
-  --------
-  → m ≤ n
-≡→≤ {zero} {zero} refl = z≤n 
-≡→≤ {suc m} {suc n} refl = s≤s (≡→≤ {m} {n} refl)
-
-
-≤-refl : ∀ {n : ℕ}
-    -----
-  → n ≤ n
-≤-refl {zero} = z≤n
-≤-refl {suc n} = s≤s ≤-refl
-
-
-≤-trans : ∀ {m n p : ℕ}
-  → m ≤ n
-  → n ≤ p
-    -----
-  → m ≤ p
-≤-trans z≤n       _          =  z≤n
-≤-trans (s≤s m≤n) (s≤s n≤p)  =  s≤s (≤-trans m≤n n≤p)
-
-
-module ≤-Reasoning  where
-
-  infix  1 begin-≤_
-  infixr 2 step-≤-∣ step-≤-⟩
-  infix  3 _∎≤
-
-  begin-≤_ : ∀ {x y : ℕ} → x ≤ y → x ≤ y
-  begin-≤ x≤y  =  x≤y
-
-  step-≤-∣ : ∀ (x : ℕ) {y : ℕ} → x ≤ y → x ≤ y
-  step-≤-∣ x x≤y  =  x≤y
-
-  step-≤-⟩ : ∀ (x : ℕ) {y z : ℕ} → y ≤ z → x ≤ y → x ≤ z
-  step-≤-⟩ x y≤z x≤y  =  ≤-trans x≤y y≤z
-
-  syntax step-≤-∣ x x≤y      =  x ≤⟨⟩ x≤y
-  syntax step-≤-⟩ x y≤z x≤y  =  x ≤⟨  x≤y ⟩ y≤z
-
-  _∎≤ : ∀ (x : ℕ) → x ≤ x
-  x ∎≤  =  ≤-refl
-
-open ≤-Reasoning
--- end of copied
-
-sub-pf-∃-+-≤← : ∀ { x y z : ℕ }
-  → x + suc y ≡ z
-  ---------------
-  → suc y ≤ z
-sub-pf-∃-+-≤← {0} {y} {z} sy≡z = ≡→≤  sy≡z 
-sub-pf-∃-+-≤← {suc x} {y} {z} sx+sy≡z = {!!}
-
-
+sub : ∀ { x y z : ℕ }
+    → x + suc y ≡ suc z
+    --------------------
+    → x + y ≡ z
+sub {0} {y} {z} refl = refl
+sub {suc x} {y} {z} refl = sym (+-suc x y)
   
 
 ∃-+-≤← : ∀ { y z : ℕ }
   → ∃[ x ] ( x + y ≡ z )
   ----------------------
   → y ≤ z
-∃-+-≤← {0} {z} ⟨ x , x+y≡z ⟩ = z≤n
-∃-+-≤← {suc y} {z} ⟨ x , x+sy≡z ⟩ = {! sub-pf-∃-+-≤← {x} {suc y} {z}  x+sy≡z!}
-
+∃-+-≤← {0}     {z} ⟨ x , x+y≡z ⟩  = z≤n
+∃-+-≤← {suc y} {suc z} ⟨ x , x+sy≡sz ⟩ = s≤s ( (∃-+-≤← {y} {z} ⟨ x , sub x+sy≡sz ⟩))
+∃-+-≤← {suc y} {0} ⟨ x , ¬p ⟩ = {!!}
+-- but ∃p not exist! we can't find x such that x + suc y ≡ 0
 ```
 
 
