@@ -14,7 +14,7 @@ This chapter introduces universal and existential quantification.
 ```agda
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl)
-open import Data.Nat using (ℕ; zero; suc; _+_; _*_ ; _≤_ )
+open import Data.Nat using (ℕ; zero; suc; _+_; _*_ ; _≤_ ; _<_ ; _>_ )
 open import Relation.Nullary using (¬_)
 open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 open import Data.Sum using (_⊎_; inj₁; inj₂)
@@ -544,6 +544,8 @@ Show that `y ≤ z` holds if and only if there exists a `x` such that
 
 open _≤_ using ( z≤n ; s≤s )
 
+import Relation.Nullary using (¬_)
+import Relation.Nullary.Negation using (contradiction; contraposition)
 
 sub-pf-∃-+-≤→ : ∀ {x y z : ℕ }
   → x + y ≡ z
@@ -576,7 +578,24 @@ sub : ∀ { x y z : ℕ }
     → x + y ≡ z
 sub {0} {y} {z} refl = refl
 sub {suc x} {y} {z} refl = sym (+-suc x y)
-  
+
+
+
+-- copy from Negation.lagda.md
+_≢_ : ∀ {A : Set} → A → A → Set
+x ≢ y  =  ¬ (x ≡ y)
+
+-- copy from Negation.lagda.md
+peano : ∀ {m : ℕ} → zero ≢ suc m
+peano = λ()
+
+
+x+sy≢0 : ∀ { x y : ℕ } → ¬ (x + (suc y) ≡ 0)
+x+sy≢0 {x} {y}  x+sucy≡0 = Relation.Nullary.Negation.contradiction q peano
+  where p : suc (x + y) ≡ 0
+        p = trans (sym (+-suc x y)) x+sucy≡0
+        q : 0 ≡ suc (x + y)
+        q = sym p
 
 ∃-+-≤← : ∀ { y z : ℕ }
   → ∃[ x ] ( x + y ≡ z )
@@ -584,7 +603,7 @@ sub {suc x} {y} {z} refl = sym (+-suc x y)
   → y ≤ z
 ∃-+-≤← {0}     {z} ⟨ x , x+y≡z ⟩  = z≤n
 ∃-+-≤← {suc y} {suc z} ⟨ x , x+sy≡sz ⟩ = s≤s ( (∃-+-≤← {y} {z} ⟨ x , sub x+sy≡sz ⟩))
-∃-+-≤← {suc y} {0} ⟨ x , ¬p ⟩ = {!!}
+∃-+-≤← {suc y} {0} ⟨ x , x+sy≡0 ⟩ = Relation.Nullary.Negation.contradiction  x+sy≡0 x+sy≢0
 -- but ∃p not exist! we can't find x such that x + suc y ≡ 0
 ```
 
