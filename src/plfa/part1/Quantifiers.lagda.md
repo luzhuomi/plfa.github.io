@@ -491,7 +491,7 @@ import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; trans; sym; cong; cong-app; subst)
 open Eq.≡-Reasoning using (begin_; step-≡-∣; step-≡; step-≡-⟩ ; _∎)
 
-open import Data.Nat.Properties using (+-assoc; +-identityʳ; +-suc; +-comm)
+open import Data.Nat.Properties using (+-assoc; +-identityʳ; +-suc; +-comm; *-comm)
 
 -- Your code goes here
 even-∃' : ∀ {n : ℕ} → even n → ∃[ m ] (    2 * m ≡ n)
@@ -646,11 +646,31 @@ The two inverse proofs are straightforward.
 
 Show that existential of a negation implies negation of a universal:
 ```agda
+{-
 postulate
   ∃¬-implies-¬∀ : ∀ {A : Set} {B : A → Set}
     → ∃[ x ] (¬ B x)
       --------------
     → ¬ (∀ x → B x)
+-}
+
+
+∃¬-implies-¬∀ : ∀ {A : Set} {B : A → Set}
+              → ∃[ x ] (¬ B x)
+              --------------
+              → ¬ (∀ x → B x)
+∃¬-implies-¬∀ ⟨ x , ¬bx ⟩ ∀x→bx = ¬bx (∀x→bx x)
+
+
+-- the converse does not hold because, we don't know which x that give us not B x
+
+{-
+¬∀-implies-∃¬ : ∀ {A : Set} {B : A → Set}
+              → ¬ (∀ x → B x)
+              --------------
+              → ∃[ x ] (¬ B x)
+¬∀-implies-∃¬ ¬∀x→bx = ⟨ x , ⟩  -- which x?
+-}
 ```
 Does the converse hold? If so, prove; if not, explain why.
 
@@ -698,6 +718,10 @@ which is a corollary of `≡Can`.
 
 ```agda
 -- Your code goes here
+
+-- refer to BinIso.agda
+
+
 ```
 
 
