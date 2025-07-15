@@ -11,7 +11,9 @@ import plfa.part1.Quantifiers as Quantifiers
 
 open Nat using ( ℕ )
 open Eq using (_≡_)
-open Relations using (Bin; One; Can)
+open Eq.≡-Reasoning using (begin_; step-≡-∣; step-≡-⟩; _∎)
+open Induction using (Bin; from; to)
+open Relations using (One; Can)
 open Isomorphism using ( _≃_ ; extensionality ; ∀-extensionality )
 open Quantifiers using (∃ ; ∃-syntax ; Σ ; Σ-syntax )
 open Σ using ( proj₁ ; proj₂ )
@@ -22,9 +24,22 @@ postulate
   proj₁≡→Can≡ : {c c′ : ∃[ b ] Can b} → proj₁ c ≡ proj₁ c′ → c ≡ c′
 
 
+ℕ≂∃Canb-from∘to : ∀ { n : ℕ} { b : Bin}
+                → ( (λ { Quantifiers.⟨ b , canb ⟩ → Induction.from b })
+                    Quantifiers.⟨ Induction.to n , Relations.to-nat-is-can n ⟩ )
+                  ≡ n
+ℕ≂∃Canb-from∘to {n} {b} =
+  begin
+    ( (λ { Quantifiers.⟨ b , canb ⟩ → Induction.from b }) Quantifiers.⟨ Induction.to n , Relations.to-nat-is-can n ⟩)
+  ≡⟨⟩
+    Induction.from (Induction.to n)
+  ≡⟨ Induction.bin-law-3 n ⟩
+    n
+  ∎
+
 ℕ≂∃Canb : ℕ ≃ (∃[ b ] Can b)
 ℕ≂∃Canb = record
-  { to = λ n → Quantifiers.⟨ Relations.to n , Relations.to-nat-is-can n ⟩
-  ; from = λ { Quantifiers.⟨ b , canb ⟩ →  Relations.from b }
-  ; from∘to = λ { n → {! !} }
+  { to = λ n → Quantifiers.⟨ Induction.to n , Relations.to-nat-is-can n ⟩
+  ; from = λ { Quantifiers.⟨ b , canb ⟩ →  Induction.from b } 
+  ; from∘to = λ { n →  {!!} }
   ; to∘from = λ { Quantifiers.⟨ b , canb ⟩ → {! !} } }

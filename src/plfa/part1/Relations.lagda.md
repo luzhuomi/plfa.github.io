@@ -1041,6 +1041,11 @@ properties of `One`. It may also help to prove the following:
 
 ```agda
 -- Your code goes here
+import plfa.part1.Induction as Induction
+open Induction using (Bin; inc; to; from)
+open Bin using (⟨⟩; _O ; _I)
+
+{-
 data Bin : Set where
   ⟨⟩ : Bin
   _O : Bin → Bin
@@ -1060,7 +1065,7 @@ from : Bin → ℕ
 from ⟨⟩    = 0
 from (b O) = (from b) * 2
 from (b I) = ((from b) * 2) + 1
-
+-}
 data Can : Bin → Set
 
 data One : Bin → Set
