@@ -21,25 +21,21 @@ open Σ using ( proj₁ ; proj₂ )
 postulate
   ≡One : ∀ {b : Bin} (o o′ : One b) → o ≡ o′
   ≡Can : ∀ {b : Bin} (c c′ : Can b) → c ≡ c′
-  proj₁≡→Can≡ : {c c′ : ∃[ b ] Can b} → proj₁ c ≡ proj₁ c′ → c ≡ c′
+  proj₁≡→Can≡ : {c c′ : ∃[ b ] Can b} → (proj₁ c ≡ proj₁ c′) → (c ≡ c′)
 
+tf : ∀ { b : Bin} { canb : Can b }
+   → Quantifiers.⟨ to ((λ { Quantifiers.⟨ b , canb ⟩ → from b }) Quantifiers.⟨ b , canb ⟩)
+                 ,
+                  Relations.to-nat-is-can
+                    ((λ { Quantifiers.⟨ b , canb ⟩ → from b }) Quantifiers.⟨ b , canb ⟩)
+                 ⟩
+      ≡ Quantifiers.⟨ b , canb ⟩
+tf = {!!}
 
-ℕ≂∃Canb-from∘to : ∀ { n : ℕ} { b : Bin}
-                → ( (λ { Quantifiers.⟨ b , canb ⟩ → Induction.from b })
-                    Quantifiers.⟨ Induction.to n , Relations.to-nat-is-can n ⟩ )
-                  ≡ n
-ℕ≂∃Canb-from∘to {n} {b} =
-  begin
-    ( (λ { Quantifiers.⟨ b , canb ⟩ → Induction.from b }) Quantifiers.⟨ Induction.to n , Relations.to-nat-is-can n ⟩)
-  ≡⟨⟩
-    Induction.from (Induction.to n)
-  ≡⟨ Induction.bin-law-3 n ⟩
-    n
-  ∎
 
 ℕ≂∃Canb : ℕ ≃ (∃[ b ] Can b)
 ℕ≂∃Canb = record
   { to = λ n → Quantifiers.⟨ Induction.to n , Relations.to-nat-is-can n ⟩
   ; from = λ { Quantifiers.⟨ b , canb ⟩ →  Induction.from b } 
-  ; from∘to = λ { n →  {!!} }
+  ; from∘to = λ { n →  Induction.bin-law-3 n }
   ; to∘from = λ { Quantifiers.⟨ b , canb ⟩ → {! !} } }
