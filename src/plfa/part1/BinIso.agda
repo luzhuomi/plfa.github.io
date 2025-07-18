@@ -15,15 +15,17 @@ open Eq.≡-Reasoning using (begin_; step-≡-∣; step-≡-⟩; _∎)
 open Induction using (Bin; from; to)
 open Relations using (One; Can)
 open Isomorphism using ( _≃_ ; extensionality ; ∀-extensionality )
-open Quantifiers using (∃ ; ∃-syntax ; Σ ; Σ-syntax )
+open Quantifiers using (∃ ; ∃-syntax ; Σ ; Σ-syntax ; ⟨_,_⟩ )
 open Σ using ( proj₁ ; proj₂ )
 open Bin using ( ⟨⟩ ; _I ; _O )
 open One using (One-i; One-bi; One-bo)
+open Can using (Can-⟨⟩ ; Can-One )
 
-postulate
+-- postulate
   -- ≡One : ∀ {b : Bin} (o o′ : One b) → o ≡ o′
-  ≡Can : ∀ {b : Bin} (c c′ : Can b) → c ≡ c′
-  proj₁≡→Can≡ : {c c′ : ∃[ b ] Can b} → (proj₁ c ≡ proj₁ c′) → (c ≡ c′)
+  -- ≡Can : ∀ {b : Bin} (c c′ : Can b) → c ≡ c′
+  -- proj₁≡→Can≡ : {c c′ : ∃[ b ] Can b} → (proj₁ c ≡ proj₁ c′) → (c ≡ c′)
+
 
 
 
@@ -32,7 +34,22 @@ postulate
 ≡One {b I} (One-bi one-b) (One-bi one-b') = Eq.cong One-bi (≡One {b} one-b one-b')
 ≡One {b O} (One-bo one-b) (One-bo one-b') = Eq.cong One-bo (≡One {b} one-b one-b')
 
+≡Can : ∀ {b : Bin} (c c′ : Can b) → c ≡ c′
+≡Can {⟨⟩} Can-⟨⟩ Can-⟨⟩ = Eq.refl
+≡Can {b} (Can-One o) (Can-One o') = Eq.cong Can-One (≡One {b} o o')
 
+
+
+∃≡ : ∀ { A : Set } { B : A → Set } { x y : A }
+   → x ≡ y
+   → B x ≡ B y
+   --  → ( ∃[ x ] B x ) ≡ ( ∃[ y ] B y  )
+   → ( (⟨ x , B x ⟩) ≡ (Quantifiers.⟨ y , B y ⟩  ))
+∃≡ = λ x₁ x₂ → Eq.refl
+
+proj₁≡→Can≡ : {c c′ : ∃[ b ] Can b} → (proj₁ c ≡ proj₁ c′) → (c ≡ c′)
+proj₁≡→Can≡ { Quantifiers.⟨ b , canb ⟩ } { Quantifiers.⟨ b' , canb' ⟩ } b≡b' = --  ∃≡ b≡b' ?
+  ∃≡ b≡b' ( ≡Can canb canb')
 
 ℕ≂∃Canb : ℕ ≃ (∃[ b ] Can b)
 ℕ≂∃Canb = record
