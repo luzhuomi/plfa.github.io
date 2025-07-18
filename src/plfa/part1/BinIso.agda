@@ -23,19 +23,10 @@ postulate
   ≡Can : ∀ {b : Bin} (c c′ : Can b) → c ≡ c′
   proj₁≡→Can≡ : {c c′ : ∃[ b ] Can b} → (proj₁ c ≡ proj₁ c′) → (c ≡ c′)
 
-tf : ∀ { b : Bin} { canb : Can b }
-   → Quantifiers.⟨ to ((λ { Quantifiers.⟨ b , canb ⟩ → from b }) Quantifiers.⟨ b , canb ⟩)
-                 ,
-                  Relations.to-nat-is-can
-                    ((λ { Quantifiers.⟨ b , canb ⟩ → from b }) Quantifiers.⟨ b , canb ⟩)
-                 ⟩
-      ≡ Quantifiers.⟨ b , canb ⟩
-tf = {!!}
-
 
 ℕ≂∃Canb : ℕ ≃ (∃[ b ] Can b)
 ℕ≂∃Canb = record
   { to = λ n → Quantifiers.⟨ Induction.to n , Relations.to-nat-is-can n ⟩
   ; from = λ { Quantifiers.⟨ b , canb ⟩ →  Induction.from b } 
   ; from∘to = λ { n →  Induction.bin-law-3 n }
-  ; to∘from = λ { Quantifiers.⟨ b , canb ⟩ → {! !} } }
+  ; to∘from = λ { Quantifiers.⟨ b , canb ⟩ →  proj₁≡→Can≡ (Relations.can-b→to-from-biject b canb)  } }
