@@ -318,9 +318,28 @@ establish the isomorphism is identical to what we wrote when discussing
 
 Show that existentials distribute over disjunction:
 ```agda
+{-
 postulate
   ∃-distrib-⊎ : ∀ {A : Set} {B C : A → Set} →
     ∃[ x ] (B x ⊎ C x) ≃ (∃[ x ] B x) ⊎ (∃[ x ] C x)
+-}
+
+∃-distrib-⊎ : ∀ {A : Set} {B C : A → Set} →
+  ∃[ x ] (B x ⊎ C x) ≃ (∃[ x ] B x) ⊎ (∃[ x ] C x)
+∃-distrib-⊎ = record
+  { to = λ { ⟨ x , inj₁ bx ⟩ →  inj₁ ⟨ x , bx ⟩
+           ; ⟨ x , inj₂ cx ⟩ →  inj₂ ⟨ x , cx ⟩ 
+           } 
+  ; from = λ { ( inj₁ ⟨ x , bx ⟩ ) → ⟨ x , inj₁ bx ⟩
+             ; ( inj₂ ⟨ x , cx ⟩ ) → ⟨ x , inj₂ cx ⟩  }
+  ; from∘to = λ { ⟨ x , inj₁ bx ⟩ →  refl
+                ; ⟨ x , inj₂ cx ⟩ →  refl
+                } 
+  ; to∘from = λ { ( inj₁ ⟨ x , bx ⟩ ) → refl
+                ; ( inj₂ ⟨ x , cx ⟩ ) → refl  } 
+  }
+
+
 ```
 
 #### Exercise `∃×-implies-×∃` (practice)
@@ -720,8 +739,6 @@ which is a corollary of `≡Can`.
 -- Your code goes here
 
 -- refer to BinIso.agda
-
-
 ```
 
 
