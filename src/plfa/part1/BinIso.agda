@@ -20,14 +20,6 @@ open Σ using ( proj₁ ; proj₂ )
 open Bin using ( ⟨⟩ ; _I ; _O )
 open One using (One-i; One-bi; One-bo)
 open Can using (Can-⟨⟩ ; Can-One )
-open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
-
--- postulate
-  -- ≡One : ∀ {b : Bin} (o o′ : One b) → o ≡ o′
-  -- ≡Can : ∀ {b : Bin} (c c′ : Can b) → c ≡ c′
-  -- proj₁≡→Can≡ : {c c′ : ∃[ b ] Can b} → (proj₁ c ≡ proj₁ c′) → (c ≡ c′)
-
-
 
 
 ≡One : ∀ {b : Bin} (o o′ : One b) → o ≡ o′
@@ -39,17 +31,18 @@ open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_�
 ≡Can {⟨⟩} Can-⟨⟩ Can-⟨⟩ = Eq.refl
 ≡Can {b} (Can-One o) (Can-One o') = Eq.cong Can-One (≡One {b} o o')
 
-
+{-
 ∃≡ : ∀ { A : Set } { B : A → Set } { x y : A }
    → x ≡ y
    → (B x) ≡ (B y)
-   → ⟨ x , B x ⟩ ≡ ⟨ y , B y ⟩
-   -- → ( ∃[ x ] B x ) ≡ ( ∃[ y ] B y  )
+   -- → ⟨ x , B x ⟩ ≡ ⟨ y , B y ⟩
+   → ( ∃[ x ] B x ) ≡ ( ∃[ y ] B y  )
 ∃≡ = λ x₁ x₂ → Eq.refl
+-}
 
 proj₁≡→Can≡ : {c c′ : ∃[ b ] Can b} → (proj₁ c ≡ proj₁ c′) → (c ≡ c′)
-proj₁≡→Can≡ { Quantifiers.⟨ b , canb ⟩ } { Quantifiers.⟨ b' , canb' ⟩ } b≡b' = -- {!cong !} --  ∃≡ b≡b' ?
-  ∃≡ b≡b' ( ≡Can canb canb')
+proj₁≡→Can≡ { Quantifiers.⟨ b , canb ⟩ } { Quantifiers.⟨ b' , canb' ⟩ } Eq.refl = Eq.cong ( λ x → ⟨ b , x ⟩ ) (≡Can {b} canb canb')
+  
 
 ℕ≂∃Canb : ℕ ≃ (∃[ b ] Can b)
 ℕ≂∃Canb = record
