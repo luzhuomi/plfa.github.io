@@ -695,14 +695,29 @@ synonym for `T ⌊ ? ⌋` called `True`:
 
 ```agda
 True : ∀ {Q} → Dec Q → Set
-True Q = T ⌊ Q ⌋ -- Q is of type Dec Q 
+True Q = T ⌊ Q ⌋ -- Q is of type Dec Q
 ```
 
+
+```agda
+-- test example
+_ : Bool
+_ = ⌊ yes ( 2 ≤ 3 ) ⌋
+
+```
 #### Exercise `False` (practice)
 
 Give analogues of `True`, `toWitness`, and `fromWitness` which work
 with *negated* properties. Call these `False`, `toWitnessFalse`, and
 `fromWitnessFalse`.
+
+
+```agda
+False : ∀ {Q} → Dec (¬ Q) → Set
+False ¬Q = T ⌊ ¬Q ⌋
+
+
+```
 
 
 #### Exercise `Bin-decidable` (stretch)
