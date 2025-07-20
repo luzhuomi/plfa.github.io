@@ -571,10 +571,28 @@ on which matches; but either is equally valid.
 
 Show that erasure relates corresponding boolean and decidable operations:
 ```agda
-postulate
-  ∧-× : ∀ {A B : Set} (x : Dec A) (y : Dec B) → ⌊ x ⌋ ∧ ⌊ y ⌋ ≡ ⌊ x ×-dec y ⌋
-  ∨-⊎ : ∀ {A B : Set} (x : Dec A) (y : Dec B) → ⌊ x ⌋ ∨ ⌊ y ⌋ ≡ ⌊ x ⊎-dec y ⌋
-  not-¬ : ∀ {A : Set} (x : Dec A) → not ⌊ x ⌋ ≡ ⌊ ¬? x ⌋
+-- postulate
+  -- ∧-× : ∀ {A B : Set} (x : Dec A) (y : Dec B) → ⌊ x ⌋ ∧ ⌊ y ⌋ ≡ ⌊ x ×-dec y ⌋
+  -- ∨-⊎ : ∀ {A B : Set} (x : Dec A) (y : Dec B) → ⌊ x ⌋ ∨ ⌊ y ⌋ ≡ ⌊ x ⊎-dec y ⌋
+  -- not-¬ : ∀ {A : Set} (x : Dec A) → not ⌊ x ⌋ ≡ ⌊ ¬? x ⌋
+
+∧-× : ∀ {A B : Set} (x : Dec A) (y : Dec B) → ⌊ x ⌋ ∧ ⌊ y ⌋ ≡ ⌊ x ×-dec y ⌋
+∧-× (yes a) (yes b) = refl
+∧-× (yes a) (no ¬b) = refl
+∧-× (no ¬a) (yes b) = refl
+∧-× (no ¬a) (no ¬b) = refl
+
+∨-⊎ : ∀ {A B : Set} (x : Dec A) (y : Dec B) → ⌊ x ⌋ ∨ ⌊ y ⌋ ≡ ⌊ x ⊎-dec y ⌋
+∨-⊎ (yes a) (yes b) = refl
+∨-⊎ (yes a) (no ¬b) = refl
+∨-⊎ (no ¬a) (yes b) = refl
+∨-⊎ (no ¬a) (no ¬b) = refl
+
+
+not-¬ : ∀ {A : Set} (x : Dec A) → not ⌊ x ⌋ ≡ ⌊ ¬? x ⌋
+not-¬ (yes a) = refl
+not-¬ (no ¬a) = refl
+
 ```
 
 #### Exercise `iff-erasure` (recommended)
@@ -583,14 +601,33 @@ Give analogues of the `_⇔_` operation from
 Chapter [Isomorphism](/Isomorphism/#iff),
 operation on booleans and decidables, and also show the corresponding erasure:
 ```agda
-postulate
-  _iff_ : Bool → Bool → Bool
-  _⇔-dec_ : ∀ {A B : Set} → Dec A → Dec B → Dec (A ⇔ B)
-  iff-⇔ : ∀ {A B : Set} (x : Dec A) (y : Dec B) → ⌊ x ⌋ iff ⌊ y ⌋ ≡ ⌊ x ⇔-dec y ⌋
+-- postulate
+  -- _iff_ : Bool → Bool → Bool
+  -- _⇔-dec_ : ∀ {A B : Set} → Dec A → Dec B → Dec (A ⇔ B)
+  -- iff-⇔ : ∀ {A B : Set} (x : Dec A) (y : Dec B) → ⌊ x ⌋ iff ⌊ y ⌋ ≡ ⌊ x ⇔-dec y ⌋
 ```
 
 ```agda
 -- Your code goes here
+_iff_ : Bool → Bool → Bool
+true  iff true  = true
+false iff false = true
+_     iff _     = false 
+
+
+_⇔-dec_ : ∀ {A B : Set} → Dec A → Dec B → Dec (A ⇔ B)
+(yes a) ⇔-dec (yes b) = yes ( record { to =  λ _ → b ; from =  λ _ → a } ) 
+(no ¬a) ⇔-dec (no ¬b) = yes ( record { to = λ a → ⊥-elim (¬a a) ; from =  λ b → ⊥-elim (¬b b) } )
+(yes a) ⇔-dec (no ¬b) = no λ a⇔b →  ¬b ((_⇔_.to a⇔b) a)
+(no ¬a) ⇔-dec (yes b) = no λ a⇔b →  ¬a ((_⇔_.from a⇔b) b)
+
+
+iff-⇔ : ∀ {A B : Set} (x : Dec A) (y : Dec B) → ⌊ x ⌋ iff ⌊ y ⌋ ≡ ⌊ x ⇔-dec y ⌋
+iff-⇔ (yes a) (yes b) = refl
+iff-⇔ (yes a) (no ¬b) = refl
+iff-⇔ (no ¬a) (yes b) = refl
+iff-⇔ (no ¬a) (no ¬b) = refl
+
 ```
 
 ## Proof by reflection {#proof-by-reflection}
@@ -658,7 +695,7 @@ synonym for `T ⌊ ? ⌋` called `True`:
 
 ```agda
 True : ∀ {Q} → Dec Q → Set
-True Q = T ⌊ Q ⌋
+True Q = T ⌊ Q ⌋ -- Q is of type Dec Q 
 ```
 
 #### Exercise `False` (practice)
