@@ -379,6 +379,9 @@ Putting the expressions into the `with` clause permits Agda to exploit
 the fact that `T (m ≤ᵇ n)` is `⊤` when `m ≤ᵇ n` is true, and that
 `T (m ≤ᵇ n)` is `⊥` when `m ≤ᵇ n` is false.
 
+> Kenny's note: `with` force the term to be reduced to primitive, so that agda can figure
+> out the precise (dependent type)?!
+
 However, overall it is simpler to just define `_≤?_` directly, as in the previous
 section.  If one really wants `_≤ᵇ_`, then it and its properties are easily derived
 from `_≤?_`, as we will now show.
