@@ -291,24 +291,57 @@ trouble normalising evidence of negation.)
 
 Analogous to the function above, define a function to decide strict inequality:
 ```agda
-postulate
-  _<?_ : ∀ (m n : ℕ) → Dec (m < n)
+-- postulate
+--   _<?_ : ∀ (m n : ℕ) → Dec (m < n)
 ```
 
 ```agda
 -- Your code goes here
+¬z<z : ¬ (zero < zero)
+¬z<z ()
+
+¬s<z : ∀ {m : ℕ} → ¬ (suc m < zero)
+¬s<z ()
+
+¬s<s : ∀ {m n : ℕ} → ¬ (m < n) → ¬ (suc m < suc n)
+¬s<s ¬m<n (s<s m<n) = ¬m<n m<n
+
+_<?_ : ∀ (m n : ℕ) → Dec (m < n)
+zero  <? zero      = no ¬z<z
+zero  <? suc n     = yes z<s
+suc m <? zero      = no ¬s<z
+suc m <? suc n with m <? n
+...               | yes m<n = yes (s<s m<n)
+...               | no ¬m<n = no (¬s<s ¬m<n)
 ```
 
 #### Exercise `_≡ℕ?_` (practice)
 
 Define a function to decide whether two naturals are equal:
 ```agda
-postulate
-  _≡ℕ?_ : ∀ (m n : ℕ) → Dec (m ≡ n)
+-- postulate
+--   _≡ℕ?_ : ∀ (m n : ℕ) → Dec (m ≡ n)
 ```
 
 ```agda
 -- Your code goes here
+¬z≡s : ∀ {m : ℕ} → ¬ (zero ≡ suc m)
+¬z≡s ()
+
+¬s≡z : ∀ {m : ℕ } → ¬ (suc m ≡ zero)
+¬s≡z ()
+
+¬s≡s : ∀ {m n : ℕ } → ¬ (m ≡ n) → ¬ (suc m ≡ suc n)
+¬s≡s ¬m≡n refl = ¬¬-intro refl ¬m≡n
+
+_≡ℕ?_ : ∀ (m n : ℕ) → Dec (m ≡ n)
+zero ≡ℕ? zero = yes refl
+(suc m) ≡ℕ? zero = no ¬s≡z
+zero ≡ℕ? (suc n) = no ¬z≡s
+(suc m) ≡ℕ? (suc n) with m ≡ℕ? n
+...                    | yes refl = yes refl
+...                    | no  ¬m≡n = no (¬s≡s ¬m≡n) 
+
 ```
 
 
