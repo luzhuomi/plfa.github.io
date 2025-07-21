@@ -591,6 +591,24 @@ The last step of the proof requires extensionality.
 
 ```agda
 -- Your code goes here
+import plfa.part1.Isomorphism as Isomorphism
+
+open Isomorphism using ( extensionality ; ∀-extensionality )
+
+map-compos : ∀ { A B C : Set } { g : B → C } { f : A → B }
+  → map (g ∘ f) ≡ map g ∘ map f
+map-compos {A} {B} {C} {g} {f}
+  = extensionality λ { [] → refl ; (x ∷ xs) →
+                                   begin
+                                     map (g ∘ f) (x ∷ xs)
+                                   ≡⟨⟩
+                                     ((g ∘ f) x) ∷ (map (g ∘ f) xs)
+                                   ≡⟨ cong ( ((g ∘ f) x) ∷_ ) (cong ( λ h → h xs ) (map-compos {A} {B} {C} {g} {f})) ⟩
+                                     ((g ∘ f) x) ∷ ((map g ∘ map f) xs)
+                                   ≡⟨⟩                                   
+                                     (map g ∘ map f) (x ∷ xs)
+                                   ∎ 
+                              } 
 ```
 
 #### Exercise `map-++-distribute` (practice)
