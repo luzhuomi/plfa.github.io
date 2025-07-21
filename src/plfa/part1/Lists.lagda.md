@@ -356,6 +356,24 @@ reverse of the second appended to the reverse of the first:
 
 ```agda
 -- Your code goes here
+reverse-++-distrib : ∀ { A : Set } { xs ys : List A }
+  → reverse (xs ++ ys) ≡ reverse ys ++ reverse xs
+reverse-++-distrib {A} {[]}       {[]} = refl
+reverse-++-distrib {A} {[]}       {ys} =  sym (++-identityʳ (reverse ys))
+reverse-++-distrib {A} { x ∷ xs } {ys} =
+  begin
+     reverse ( x ∷ xs  ++ ys )
+  ≡⟨⟩
+     reverse ( x  ∷ (xs ++ ys) )
+  ≡⟨⟩
+     reverse (xs ++ ys) ++ [ x ]
+  ≡⟨ cong ( _++ [ x ] ) (reverse-++-distrib {A} {xs} {ys}) ⟩
+     ( reverse ys ++ reverse xs ) ++ [ x ]
+  ≡⟨ ++-assoc (reverse ys) (reverse xs) [ x ] ⟩
+     reverse ys ++ ( reverse xs  ++ [ x ] )
+  ≡⟨⟩ 
+     reverse ys ++ reverse ( x ∷ xs )
+  ∎
 ```
 
 
@@ -368,6 +386,41 @@ as the identity function.  Show that reverse is an involution:
 
 ```agda
 -- Your code goes here
+
+
+reverse++[] : ∀ { A : Set } { x : A} { xs : List A }
+  → reverse (xs ++ [ x ]) ≡ x ∷ (reverse xs)
+reverse++[] {A} {x} {[]} = refl
+reverse++[] {A} {x} { y ∷ ys } =
+  begin
+    reverse (y ∷ ys ++ [ x ])
+  ≡⟨⟩
+    reverse (y ∷ (ys ++ [ x ]))
+  ≡⟨⟩
+    (reverse (ys ++ [ x ])) ++ [ y ]
+  ≡⟨ cong ( _++ [ y ] ) (reverse++[] {A} {x} {ys})  ⟩
+    (x ∷ (reverse ys)) ++ [ y ]
+  ≡⟨⟩ 
+    x ∷ ((reverse ys) ++ [ y ])
+  ≡⟨⟩
+    x ∷ (reverse ( y ∷ ys) )
+  ∎
+
+
+
+reverse-involutive : ∀ { A : Set } { xs : List A }
+  → reverse (reverse xs) ≡ xs
+reverse-involutive {A} { [] } = refl
+reverse-involutive {A} { x ∷ xs } =
+  begin
+    reverse (reverse ( x ∷ xs ))
+  ≡⟨⟩
+    reverse (reverse xs ++ [ x ])
+  ≡⟨ reverse++[] {A} {x} {reverse xs} ⟩
+    x ∷ (reverse (reverse xs))
+  ≡⟨ cong ( x ∷_ ) (reverse-involutive {A} {xs}) ⟩
+    x ∷ xs
+  ∎ 
 ```
 
 
