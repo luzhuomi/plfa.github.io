@@ -700,9 +700,16 @@ True Q = T ⌊ Q ⌋ -- Q is of type Dec Q
 
 
 ```agda
--- test example
-_ : Bool
-_ = ⌊ yes ( 2 ≤ 3 ) ⌋
+-- test example for True 
+
+
+toWitness' : ∀ {A : Set} {D : Dec A} → True D → A
+toWitness' {A} {yes x} tt  =  x
+toWitness' {A} {no ¬x} ()
+
+fromWitness' : ∀ {A : Set} {D : Dec A} → A → True D 
+fromWitness' {A} {yes x} _  =  tt
+fromWitness' {A} {no ¬x} x  =  ¬x x
 
 ```
 #### Exercise `False` (practice)
@@ -716,7 +723,13 @@ with *negated* properties. Call these `False`, `toWitnessFalse`, and
 False : ∀ {Q} → Dec (¬ Q) → Set
 False ¬Q = T ⌊ ¬Q ⌋
 
+toWitnessFalse : ∀ {A : Set} {D : Dec (¬ A)} → T ⌊ D ⌋ → ¬ A
+toWitnessFalse {A} {yes ¬x} tt = ¬x
+toWitnessFalse {A} {no x} ()   
 
+fromWitnessFalse : ∀ {A : Set} {D : Dec (¬ A)} → ¬ A → T ⌊ D ⌋ 
+fromWitnessFalse {A} {yes ¬x} _  = tt 
+fromWitnessFalse {A} {no x}  ¬x  = x ¬x    
 ```
 
 
@@ -737,6 +750,10 @@ Show that both of the above are decidable.
     One? : ∀ (b : Bin) → Dec (One b)
     Can? : ∀ (b : Bin) → Dec (Can b)
 
+
+```agda
+-- refer to BinDec.agda
+```
 
 
 ## Standard Library
