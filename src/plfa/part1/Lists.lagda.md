@@ -1049,6 +1049,12 @@ foldr-monoid-++ _⊗_ e monoid-⊗ xs ys =
 Define a function `foldl` which is analogous to `foldr`, but where
 operations associate to the left rather than the right.  For example:
 
+    foldr _⊗_ e [ x ]  =  x ⊗ e
+    foldl _⊗_ e [ x ]  =  e ⊗ x
+
+    foldr _⊗_ e [ x , y ]  =  x ⊗ (y ⊗ e)
+    foldl _⊗_ e [ x , y ]  =  (e ⊗ x) ⊗ y
+
     foldr _⊗_ e [ x , y , z ]  =  x ⊗ (y ⊗ (z ⊗ e))
     foldl _⊗_ e [ x , y , z ]  =  ((e ⊗ x) ⊗ y) ⊗ z
 
@@ -1065,23 +1071,39 @@ foldl _⊗_ e (x ∷ xs) = foldl _⊗_ (e ⊗ x) xs
 Show that if `_⊗_` and `e` form a monoid, then `foldr _⊗_ e` and
 `foldl _⊗_ e` always compute the same result.
 
+
+
 ```agda
 -- Your code goes here
 
 foldr-monoid-foldl :  ∀ {A : Set} (_⊗_ : A → A → A) (e : A) → IsMonoid _⊗_ e →
   ∀ (xs : List A) → foldr _⊗_ e xs ≡ foldl _⊗_ e xs
-foldr-monoid-foldl  _⊗_ e monoid-⊗ []        = refl
-foldr-monoid-foldl  _⊗_ e monoid-⊗ ( x ∷ xs ) =
+foldr-monoid-foldl  _⊗_ e ⊗-monoid []        = refl
+foldr-monoid-foldl  _⊗_ e ⊗-monoid (x ∷ [])  =
+  begin 
+    foldr _⊗_ e (x ∷ [])
+  ≡⟨⟩
+    x ⊗ e
+  ≡⟨ identityʳ ⊗-monoid x ⟩
+    x
+  ≡⟨ sym ( identityˡ ⊗-monoid x ) ⟩
+    e ⊗ x 
+  ≡⟨⟩
+    foldl _⊗_ e  (x ∷ [])
+  ∎
+foldr-monoid-foldl  _⊗_ e ⊗-monoid ( x₁ ∷ x₂ ∷ xs ) =
   begin
-    foldr _⊗_ e (x ∷ xs)
+    foldr _⊗_ e ( x₁ ∷ x₂ ∷ xs )
   ≡⟨⟩
-    x ⊗ foldr _⊗_ e xs
-  ≡⟨ cong (x ⊗_) ( foldr-monoid-foldl  _⊗_ e monoid-⊗ xs ) ⟩
-    x ⊗ foldl _⊗_ e xs
+    x₁ ⊗ foldr _⊗_ e ( x₂ ∷ xs )
+  ≡⟨ cong (x₁ ⊗_) ( foldr-monoid-foldl _⊗_ e ⊗-monoid ( x₂ ∷ xs ) ) ⟩
+    x₁ ⊗ foldl _⊗_ e ( x₂ ∷ xs )
   ≡⟨⟩
-    foldl _⊗_ (e ⊗ x) xs
+    x₁ ⊗ foldl _⊗_ (e ⊗ x₂) xs 
+  ≡⟨ cong ⟩
+    x₁ ⊗ (foldl _⊗_ x₂ xs)
   ≡⟨⟩
-    foldl _⊗_ e (x ∷ xs)
+    foldl _⊗_ e ( x₁ ∷ x₂ ∷ xs )
   ∎ 
 ```
 
