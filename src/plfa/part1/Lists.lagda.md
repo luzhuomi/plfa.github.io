@@ -836,8 +836,22 @@ The proof requires extensionality.
 
 ```agda
 -- Your code goes here
-
-
+map-is-foldr : ∀ { A B : Set } { f : A → B } →
+   map f ≡ foldr (λ x xs → f x ∷ xs) []
+map-is-foldr {A} {B} {f} = extensionality sub_proof
+   where sub_proof : ∀ (xs : List A) → map f xs ≡ foldr (λ y → _∷_ (f y)) [] xs
+         sub_proof []         = refl
+         sub_proof ( x ∷ xs ) = 
+           begin
+             map f ( x ∷ xs )
+           ≡⟨⟩
+             (f x) ∷ (map f xs)
+           ≡⟨ cong ( (f x) ∷_ ) (sub_proof xs) ⟩
+             (f x) ∷ (foldr (λ y → _∷_ (f y)) [] xs)
+           ≡⟨⟩ 
+             foldr (λ y → _∷_ (f y)) [] (x ∷ xs)
+           ∎             
+         
 ```
 
 #### Exercise `fold-Tree` (practice)
@@ -849,6 +863,11 @@ Define a suitable fold function for the type of trees given earlier:
 
 ```agda
 -- Your code goes here
+
+
+fold-Tree : ∀ {A B C : Set} → (A → C) → (C → B → C → C) → Tree A B → C
+fold-Tree {A} {B} {C} f g (leaf a) = f a
+fold-Tree {A} {B} {C} f g (node lft b rgt) = g (fold-Tree {A} {B} {C} f g lft) b (fold-Tree {A} {B} {C} f g rgt)
 ```
 
 #### Exercise `map-is-fold-Tree` (practice)
@@ -857,6 +876,26 @@ Demonstrate an analogue of `map-is-foldr` for the type of trees.
 
 ```agda
 -- Your code goes here
+map-is-fold-Tree : ∀ {A B C D : Set} { f : A → C } { g : B → D }
+  → map-Tree f g ≡ fold-Tree (λ a → leaf (f a))  (λ l b r → node l (g b) r)
+map-is-fold-Tree {A} {B} {C} {D} {f} {g} = extensionality sub_proof
+  where
+    sub_proof : ∀ (x : Tree A B)
+              → map-Tree f g x ≡ fold-Tree (λ a → leaf (f a)) (λ l b → node l (g b)) x
+    sub_proof (leaf a) = refl
+    sub_proof (node lft b rgt) =
+      begin
+        map-Tree f g (node lft b rgt)
+      ≡⟨⟩
+        node (map-Tree f g lft) (g b) (map-Tree f g rgt)
+      ≡⟨ cong (λ x → node x (g b) (map-Tree f g rgt)) (sub_proof lft) ⟩
+        node (fold-Tree (λ a → leaf (f a)) (λ l b → node l (g b)) lft) (g b) (map-Tree f g rgt)
+      ≡⟨ cong (λ y → node (fold-Tree (λ a → leaf (f a)) (λ l b → node l (g b)) lft) (g b) y) (sub_proof rgt) ⟩
+        node (fold-Tree (λ a → leaf (f a)) (λ l b → node l (g b)) lft) (g b) (fold-Tree (λ a → leaf (f a)) (λ l b → node l (g b)) rgt)
+      ≡⟨⟩
+        fold-Tree (λ a → leaf (f a)) (λ l b → node l (g b)) (node lft b rgt)
+      ∎ 
+    
 ```
 
 #### Exercise `sum-downFrom` (stretch)
@@ -879,6 +918,37 @@ equal to `n * (n ∸ 1) / 2`:
 
 ```agda
 -- Your code goes here
+
+open import plfa.part1.Induction using (*-distrib-+ ; *-distrib-+-l; +-comm ; *-comm )
+
+sum-downFrom : ∀ { n : ℕ }
+  → (sum (downFrom n)) * 2 ≡ n * (n ∸ 1)
+sum-downFrom {0}     = refl
+sum-downFrom {1}     = refl
+sum-downFrom {suc (suc n)} =
+  begin
+    (sum (downFrom (suc (suc n)))) * 2
+  ≡⟨⟩
+    (sum ( (suc n) ∷ (downFrom (suc n)) )) * 2
+  ≡⟨⟩
+    (foldr _+_ 0 ( (suc n) ∷ (downFrom (suc n)) )) * 2
+  ≡⟨⟩
+    ((suc n) + foldr _+_ 0 (downFrom (suc n))) * 2 
+  ≡⟨⟩
+    ((suc n) + sum (downFrom (suc n)) ) * 2
+  ≡⟨ *-distrib-+ (suc n) (sum (downFrom (suc n))) 2 ⟩
+    (suc n) * 2 + (sum (downFrom (suc n))) * 2
+  ≡⟨ cong ( (suc n) * 2 +_ ) (sum-downFrom {suc n}) ⟩
+    (suc n) * 2 + (suc n) * ( (suc n) ∸ 1)
+  ≡⟨ sym (*-distrib-+-l (suc n) 2 ((suc n) ∸ 1)) ⟩
+    (suc n) * (2 + ((suc n) ∸ 1))
+  ≡⟨⟩
+    (suc n) * (2 + n)
+  ≡⟨⟩
+    (suc n) * (suc (suc n))
+  ≡⟨ *-comm (suc n) (suc (suc n)) ⟩ 
+    (suc (suc n)) * ((suc (suc n)) ∸ 1)
+  ∎ 
 ```
 
 ## Monoids
@@ -984,6 +1054,9 @@ operations associate to the left rather than the right.  For example:
 
 ```agda
 -- Your code goes here
+foldl : ∀ {A B : Set} → (B → A → B) → B → List A → B
+foldl _⊗_ e [] = e
+foldl _⊗_ e (x ∷ xs) = foldl _⊗_ (e ⊗ x) xs
 ```
 
 
@@ -994,6 +1067,22 @@ Show that if `_⊗_` and `e` form a monoid, then `foldr _⊗_ e` and
 
 ```agda
 -- Your code goes here
+
+foldr-monoid-foldl :  ∀ {A : Set} (_⊗_ : A → A → A) (e : A) → IsMonoid _⊗_ e →
+  ∀ (xs : List A) → foldr _⊗_ e xs ≡ foldl _⊗_ e xs
+foldr-monoid-foldl  _⊗_ e monoid-⊗ []        = refl
+foldr-monoid-foldl  _⊗_ e monoid-⊗ ( x ∷ xs ) =
+  begin
+    foldr _⊗_ e (x ∷ xs)
+  ≡⟨⟩
+    x ⊗ foldr _⊗_ e xs
+  ≡⟨ cong (x ⊗_) ( foldr-monoid-foldl  _⊗_ e monoid-⊗ xs ) ⟩
+    x ⊗ foldl _⊗_ e xs
+  ≡⟨⟩
+    foldl _⊗_ (e ⊗ x) xs
+  ≡⟨⟩
+    foldl _⊗_ e (x ∷ xs)
+  ∎ 
 ```
 
 
