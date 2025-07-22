@@ -597,18 +597,20 @@ open Isomorphism using ( extensionality ; ∀-extensionality )
 
 map-compos : ∀ { A B C : Set } { g : B → C } { f : A → B }
   → map (g ∘ f) ≡ map g ∘ map f
-map-compos {A} {B} {C} {g} {f}
-  = extensionality λ { [] → refl ; (x ∷ xs) →
-                                   begin
-                                     map (g ∘ f) (x ∷ xs)
-                                   ≡⟨⟩
-                                     ((g ∘ f) x) ∷ (map (g ∘ f) xs)
-                                   ≡⟨ cong ( ((g ∘ f) x) ∷_ ) (cong ( λ h → h xs ) (map-compos {A} {B} {C} {g} {f})) ⟩
-                                     ((g ∘ f) x) ∷ ((map g ∘ map f) xs)
-                                   ≡⟨⟩                                   
-                                     (map g ∘ map f) (x ∷ xs)
-                                   ∎ 
-                              } 
+map-compos {A} {B} {C} {g} {f} = extensionality ex_func
+  where
+    ex_func : ∀ (x : List A) → map (g ∘ f) x ≡ (map g ∘ map f) x
+    ex_func [] = refl
+    ex_func (x ∷ xs) =
+      begin
+        map (g ∘ f) (x ∷ xs)
+      ≡⟨⟩
+        ((g ∘ f) x) ∷ (map (g ∘ f) xs)
+      ≡⟨ cong ( ((g ∘ f) x) ∷_ ) (ex_func xs) ⟩
+        ((g ∘ f) x) ∷ ((map g ∘ map f) xs)
+      ≡⟨⟩                                   
+        (map g ∘ map f) (x ∷ xs)
+      ∎ 
 ```
 
 #### Exercise `map-++-distribute` (practice)
@@ -619,6 +621,21 @@ Prove the following relationship between map and append:
 
 ```agda
 -- Your code goes here
+map-++-distribute : ∀ { A B : Set } { f : A → B } { xs ys : List A }
+  → map f (xs ++ ys) ≡ map f xs ++ map f ys
+map-++-distribute {A} {B} {f} {[]}        {ys} = refl
+map-++-distribute {A} {B} {f} {(x ∷ xs)} {ys} =
+  begin
+    map f ( (x ∷ xs) ++ ys)
+  ≡⟨⟩
+    map f ( x ∷ (xs ++ ys))
+  ≡⟨⟩
+    f x ∷ map f (xs ++ ys)
+  ≡⟨ cong ( f x ∷_ ) (map-++-distribute {A} {B} {f} {xs} {ys}) ⟩
+    f x ∷ (map f xs ++ map f ys)
+  ≡⟨⟩
+    map f (x ∷ xs) ++ map f ys
+  ∎ 
 ```
 
 #### Exercise `map-Tree` (practice)
@@ -636,6 +653,9 @@ Define a suitable map operator over trees:
 
 ```agda
 -- Your code goes here
+map-Tree : ∀ {A B C D : Set} → (A → C) → (B → D) → Tree A B → Tree C D
+map-Tree f g (leaf a)         = leaf (f a)
+map-Tree f g (node lft b rgt) = node (map-Tree f g lft) (g b) (map-Tree f g rgt)
 ```
 
 ## Fold {#Fold}
@@ -718,19 +738,36 @@ For example:
 
 ```agda
 -- Your code goes here
+product : List ℕ → ℕ
+product = foldr _*_ 1
 ```
 
 #### Exercise `foldr-++` (recommended)
 
 Show that fold and append are related as follows:
 ```agda
-postulate
-  foldr-++ : ∀ {A B : Set} (_⊗_ : A → B → B) (e : B) (xs ys : List A) →
-    foldr _⊗_ e (xs ++ ys) ≡ foldr _⊗_ (foldr _⊗_ e ys) xs
+-- postulate
+--   foldr-++ : ∀ {A B : Set} (_⊗_ : A → B → B) (e : B) (xs ys : List A) →
+--    foldr _⊗_ e (xs ++ ys) ≡ foldr _⊗_ (foldr _⊗_ e ys) xs
 ```
 
 ```agda
 -- Your code goes here
+foldr-++ : ∀ {A B : Set} (_⊗_ : A → B → B) (e : B) (xs ys : List A) →
+  foldr _⊗_ e (xs ++ ys) ≡ foldr _⊗_ (foldr _⊗_ e ys) xs
+foldr-++ _⊗_ e [] ys = refl
+foldr-++ _⊗_ e (x ∷ xs) ys =
+  begin
+    foldr _⊗_ e ( (x ∷ xs) ++ ys)
+  ≡⟨⟩
+    foldr _⊗_ e ( x ∷ (xs ++ ys))
+  ≡⟨⟩
+    x ⊗ foldr _⊗_ e  (xs ++ ys)
+  ≡⟨ cong ( x ⊗_ ) ( foldr-++ _⊗_ e xs ys ) ⟩
+    x ⊗ foldr _⊗_ (foldr _⊗_ e ys) xs
+  ≡⟨⟩
+    foldr _⊗_ (foldr _⊗_ e ys) (x ∷ xs)
+  ∎
 ```
 
 #### Exercise `foldr-∷` (practice)
@@ -746,6 +783,47 @@ Show as a consequence of `foldr-++` above that
 
 ```agda
 -- Your code goes here
+foldr-∷ : ∀ { A : Set } (xs : List A)
+        →  foldr _∷_ [] xs ≡ xs
+foldr-∷ {A} []        = refl
+foldr-∷ {A} (x ∷ xs) =
+  begin
+    foldr _∷_ [] (x ∷ xs)
+  ≡⟨⟩
+    x ∷ (foldr _∷_ [] xs)
+  ≡⟨ cong ( x ∷_ ) (foldr-∷ {A} xs) ⟩
+    x ∷ xs
+  ∎
+
+
+++≡foldr-∷ : ∀ { A : Set } ( xs ys : List A )
+  → xs ++ ys ≡ foldr _∷_ ys xs
+++≡foldr-∷ {A} xs ys =
+  begin
+    xs ++ ys
+  ≡⟨ sym (foldr-∷ {A} (xs ++ ys)) ⟩
+    foldr _∷_ [] (xs ++ ys)
+  ≡⟨ foldr-++ _∷_ [] xs ys ⟩
+    foldr _∷_ (foldr _∷_ [] ys) xs
+  ≡⟨ cong (λ e → foldr _∷_ e xs) (foldr-∷ {A} ys)  ⟩
+    foldr _∷_ ys xs  
+  ∎
+  
+-- full proof not using the previous results
+{-
+++≡foldr-∷ {A} [] ys        = refl
+++≡foldr-∷ {A} (x ∷ xs) ys =
+  begin
+    (x ∷ xs) ++ ys
+  ≡⟨⟩
+    x ∷ (xs ++ ys)
+  ≡⟨ cong ( x ∷_ ) (++≡foldr-∷ {A} xs ys)  ⟩
+    x ∷ (foldr _∷_ ys xs)
+  ≡⟨⟩
+    foldr _∷_ ys (x ∷ xs)
+  ∎ 
+-}
+
 ```
 
 #### Exercise `map-is-foldr` (practice)
@@ -758,6 +836,8 @@ The proof requires extensionality.
 
 ```agda
 -- Your code goes here
+
+
 ```
 
 #### Exercise `fold-Tree` (practice)
