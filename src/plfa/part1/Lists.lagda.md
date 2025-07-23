@@ -1076,35 +1076,57 @@ Show that if `_⊗_` and `e` form a monoid, then `foldr _⊗_ e` and
 ```agda
 -- Your code goes here
 
+foldl-monoid-sub-lemma : ∀ {A : Set} (_⊗_ : A → A → A) (e : A) → IsMonoid _⊗_ e →
+    ∀ (x : A) (xs : List A) → x ⊗ foldl _⊗_ e xs ≡ foldl _⊗_ (x ⊗ e) xs
+foldl-monoid-sub-lemma _⊗_ e ⊗-monoid x []       = refl
+foldl-monoid-sub-lemma _⊗_ e ⊗-monoid x (y ∷ ys) =
+  begin
+    x ⊗ foldl _⊗_ e (y ∷ ys)
+  ≡⟨⟩
+    x ⊗ foldl _⊗_ ( e ⊗ y ) ys
+  ≡⟨ cong ( λ { z → x ⊗ foldl _⊗_ z ys } ) ( identityˡ ⊗-monoid y )  ⟩  
+    x ⊗ foldl _⊗_ y  ys
+  ≡⟨ cong ( λ { z → x ⊗ foldl _⊗_ z ys } ) ( sym (identityʳ ⊗-monoid y ) )  ⟩
+    x ⊗ foldl _⊗_ ( y ⊗ e )  ys
+  ≡⟨ cong ( x ⊗_ ) (sym (foldl-monoid-sub-lemma _⊗_ e ⊗-monoid y ys ) ) ⟩
+    x ⊗ ( y ⊗ (foldl _⊗_ e  ys) )
+  ≡⟨ sym (assoc ⊗-monoid x y ( foldl _⊗_ e  ys )) ⟩
+    ( x ⊗ y ) ⊗ (foldl _⊗_ e  ys) 
+  ≡⟨ foldl-monoid-sub-lemma _⊗_ e ⊗-monoid ( x ⊗ y ) ys ⟩
+    foldl _⊗_ ( ( x ⊗ y ) ⊗ e ) ys
+  ≡⟨ cong ( λ { z → foldl _⊗_ z ys } ) ( identityʳ ⊗-monoid ( x ⊗ y ) ) ⟩
+    foldl _⊗_ ( x ⊗ y ) ys  
+  ≡⟨ cong ( λ { z → foldl _⊗_ z ys } ) ( sym ( identityˡ ⊗-monoid ( x ⊗ y ) ) ) ⟩
+    foldl _⊗_ ( e ⊗ ( x ⊗ y ) ) ys
+  ≡⟨ cong ( λ { z → foldl _⊗_ z ys } ) ( sym ( assoc ⊗-monoid e  x y ) ) ⟩
+    foldl _⊗_ ( ( e ⊗ x ) ⊗ y ) ys      
+  ≡⟨⟩ 
+    foldl _⊗_ ( e ⊗ x )  (y ∷ ys)
+  ≡⟨ cong ( λ { z → foldl _⊗_ z (y ∷ ys) } ) ( identityˡ ⊗-monoid x ) ⟩
+    foldl _⊗_  x  (y ∷ ys)
+  ≡⟨ cong ( λ { z → foldl _⊗_ z (y ∷ ys) } ) ( sym ( identityʳ ⊗-monoid x ) ) ⟩  
+    foldl _⊗_ (x ⊗ e) (y ∷ ys)
+  ∎ 
+
 foldr-monoid-foldl :  ∀ {A : Set} (_⊗_ : A → A → A) (e : A) → IsMonoid _⊗_ e →
   ∀ (xs : List A) → foldr _⊗_ e xs ≡ foldl _⊗_ e xs
 foldr-monoid-foldl  _⊗_ e ⊗-monoid []        = refl
-foldr-monoid-foldl  _⊗_ e ⊗-monoid (x ∷ [])  =
-  begin 
-    foldr _⊗_ e (x ∷ [])
-  ≡⟨⟩
-    x ⊗ e
-  ≡⟨ identityʳ ⊗-monoid x ⟩
-    x
-  ≡⟨ sym ( identityˡ ⊗-monoid x ) ⟩
-    e ⊗ x 
-  ≡⟨⟩
-    foldl _⊗_ e  (x ∷ [])
-  ∎
-foldr-monoid-foldl  _⊗_ e ⊗-monoid ( x₁ ∷ x₂ ∷ xs ) =
+foldr-monoid-foldl  _⊗_ e ⊗-monoid ( x ∷ xs ) =
   begin
-    foldr _⊗_ e ( x₁ ∷ x₂ ∷ xs )
+    foldr _⊗_ e ( x ∷ xs )
   ≡⟨⟩
-    x₁ ⊗ foldr _⊗_ e ( x₂ ∷ xs )
-  ≡⟨ cong (x₁ ⊗_) ( foldr-monoid-foldl _⊗_ e ⊗-monoid ( x₂ ∷ xs ) ) ⟩
-    x₁ ⊗ foldl _⊗_ e ( x₂ ∷ xs )
+    x ⊗ foldr _⊗_ e xs 
+  ≡⟨ cong (x ⊗_) ( foldr-monoid-foldl _⊗_ e ⊗-monoid xs  ) ⟩
+    x ⊗ foldl _⊗_ e xs 
+  ≡⟨ foldl-monoid-sub-lemma _⊗_ e ⊗-monoid x xs  ⟩
+    foldl _⊗_ ( x ⊗ e ) xs
+  ≡⟨ cong (λ { z → foldl _⊗_ z xs } ) ( identityʳ ⊗-monoid x ) ⟩
+    foldl _⊗_  x xs 
+  ≡⟨ cong (λ { z → foldl _⊗_ z xs } ) ( sym ( identityˡ ⊗-monoid x ) ) ⟩
+    foldl _⊗_  ( e ⊗ x ) xs 
   ≡⟨⟩
-    x₁ ⊗ foldl _⊗_ (e ⊗ x₂) xs 
-  ≡⟨ cong ⟩
-    x₁ ⊗ (foldl _⊗_ x₂ xs)
-  ≡⟨⟩
-    foldl _⊗_ e ( x₁ ∷ x₂ ∷ xs )
-  ∎ 
+    foldl _⊗_ e ( x ∷ xs )
+  ∎  
 ```
 
 
