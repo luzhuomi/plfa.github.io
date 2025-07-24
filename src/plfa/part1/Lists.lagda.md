@@ -1245,6 +1245,32 @@ replacement for `_×_`.  As a consequence, demonstrate an equivalence relating
 
 ```agda
 -- Your code goes here
+open import Data.Sum using (_⊎_; inj₁; inj₂) renaming ([_,_] to case-⊎)
+
+Any-++-⇔ : ∀ {A : Set} {P : A → Set} (xs ys : List A) →
+  Any P (xs ++ ys) ⇔ ((Any P xs) ⊎ (Any P ys))
+Any-++-⇔  xs ys =
+  record
+    { to   =  to1 xs ys
+    ; from = from1 xs ys
+    }
+  where
+    to1 : ∀ { A : Set} {P : A → Set}  (xs ys : List A) →  Any P (xs ++ ys) → Any P xs ⊎ Any P ys
+    to1 [] ys Pys = inj₂ Pys
+    to1 (x ∷ xs) ys (here Px) = inj₁ (here Px)
+    to1 (x ∷ xs) ys (there Pxs++ys)  with to1 xs ys Pxs++ys
+    ...  | inj₁ Pxs = inj₁ (there Pxs)
+    ...  | inj₂ Pys = inj₂ Pys
+    from1 : ∀ { A : Set} {P : A → Set}  (xs ys : List A) → Any P xs ⊎ Any P ys → Any P (xs ++ ys)
+    from1 [] ys (inj₂ Pys) = Pys
+    from1 (x ∷ xs) ys (inj₁ (here Px))   = here Px
+    from1 (x ∷ xs) ys (inj₁ (there Pxs)) = there (from1 xs ys (inj₁ Pxs) )
+    from1 (x ∷ xs) ys (inj₂ Pys)         = there (from1 xs ys (inj₂ Pys) )
+
+
+∈-++--⇔ : ∀ {A : Set} ( x : A ) ( xs ys : List A) →
+  ( x ∈ ( xs ++ ys ) ) ⇔ ( ( x ∈ xs ) ⊎ ( x ∈ ys ) )
+∈-++--⇔ {A} x xs ys = Any-++-⇔ {A} { x ≡_ } xs ys
 ```
 
 #### Exercise `All-++-≃` (stretch)
@@ -1253,6 +1279,15 @@ Show that the equivalence `All-++-⇔` can be extended to an isomorphism.
 
 ```agda
 -- Your code goes here
+All-++-≃ : ∀ {A : Set} {P : A → Set} (xs ys : List A) →
+  All P (xs ++ ys) ≃ (All P xs × All P ys)
+All-++-≃ xs ys =
+  record
+  { to =  _⇔_.to ( All-++-⇔ xs ys )
+  ; from =   _⇔_.from ( All-++-⇔ xs ys )
+  ; from∘to = λ Pxys → {!!} 
+  ; to∘from = λ { ⟨ Pxs , Pys ⟩  → {! !} }
+  }
 ```
 
 #### Exercise `¬Any⇔All¬` (recommended)
