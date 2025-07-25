@@ -1279,6 +1279,7 @@ Show that the equivalence `All-++-⇔` can be extended to an isomorphism.
 
 ```agda
 -- Your code goes here
+open import Data.Product using ( proj₁ ; proj₂ )
 All-++-≃ : ∀ {A : Set} {P : A → Set} (xs ys : List A) →
   All P (xs ++ ys) ≃ (All P xs × All P ys)
 All-++-≃ xs ys =
@@ -1286,7 +1287,7 @@ All-++-≃ xs ys =
   { to      = to1 xs ys 
   ; from    = from1 xs ys 
   ; from∘to = from-to xs ys  
-  ; to∘from = λ { ⟨ Pxs , Pys ⟩  → {! !} }
+  ; to∘from = to-from xs ys 
   }
   where
     to1      : ∀ { A : Set} {P : A → Set} (xs ys : List A) → All P (xs ++ ys) → (All P xs × All P ys)
@@ -1295,16 +1296,32 @@ All-++-≃ xs ys =
     from1    : ∀ { A : Set} {P : A → Set} (xs ys : List A) → (All P xs × All P ys) → All P (xs ++ ys) 
     from1 {A} {P} xs ys   = _⇔_.from (All-++-⇔ {A} {P} xs ys)
     from-to : ∀ { A : Set} {P : A → Set} (xs ys : List A) ( Pxys : All P (xs ++ ys) )
-              →  from1 xs ys 
-                 (to1 xs ys Pxys)
-                 ≡ Pxys
-    from-to [] ys = λ Pxys → refl
-    from-to (x ∷ xs) ys (Px ∷ Pxs++ys) = {!
+              →  from1 xs ys (to1 xs ys Pxys) ≡ Pxys
+    from-to []       ys Pxys           = refl
+    from-to (x ∷ xs) ys (Px ∷ Pxs++ys) = 
+           begin
+             from1 (x ∷ xs) ys (to1 (x ∷ xs) ys ( Px ∷  Pxs++ys ) ) 
+           ≡⟨⟩
+             Px ∷ ( from1 xs ys (to1 xs ys Pxs++ys) )
+           ≡⟨ cong ( Px ∷_ ) (from-to xs ys Pxs++ys) ⟩           
+             Px ∷ Pxs++ys
+           ∎
+    to-from : ∀ { A : Set} {P : A → Set} (xs ys : List A) ( Pxys : (All P xs × All P ys) )
+               →  to1 xs ys (from1 xs ys Pxys) ≡ Pxys
+    to-from [] ys ⟨ [] , Pys ⟩              = refl
+    to-from (x ∷ xs) ys ⟨ Px ∷ Pxs , Pys ⟩  =
             begin
-              from1 (x ∷ xs) ys (to1 (x ∷ xs) ys (Px ∷ Pxs++ys))
+             to1 (x ∷ xs) ys (from1 (x ∷ xs) ys ⟨ Px ∷ Pxs , Pys ⟩ ) 
             ≡⟨⟩
-              (Px ∷ Pxs++ys)
-            ∎ !} 
+             to1 (x ∷ xs) ys ( Px ∷ from1 xs ys ⟨ Pxs , Pys ⟩)
+            ≡⟨⟩
+             ⟨ Px ∷ (proj₁ (to1 xs ys (from1 xs ys ⟨ Pxs , Pys ⟩))) , proj₂ (to1 xs ys (from1 xs ys ⟨ Pxs , Pys ⟩)) ⟩ 
+            ≡⟨ cong (λ z → ⟨ Px ∷ (proj₁ (to1 xs ys (from1 xs ys ⟨ Pxs , Pys ⟩))) , proj₂ z ⟩ ) (to-from xs ys ⟨ Pxs , Pys ⟩) ⟩
+             ⟨ Px ∷ (proj₁ (to1 xs ys (from1 xs ys ⟨ Pxs , Pys ⟩))) ,  Pys  ⟩
+            ≡⟨ cong (λ z → ⟨ Px ∷ (proj₁ z) ,  Pys ⟩ ) (to-from xs ys ⟨ Pxs , Pys ⟩) ⟩
+             ⟨ Px ∷ Pxs , Pys ⟩
+            ∎ 
+
 ```
 
 #### Exercise `¬Any⇔All¬` (recommended)
