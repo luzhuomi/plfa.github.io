@@ -1283,11 +1283,28 @@ All-++-≃ : ∀ {A : Set} {P : A → Set} (xs ys : List A) →
   All P (xs ++ ys) ≃ (All P xs × All P ys)
 All-++-≃ xs ys =
   record
-  { to =  _⇔_.to ( All-++-⇔ xs ys )
-  ; from =   _⇔_.from ( All-++-⇔ xs ys )
-  ; from∘to = λ Pxys → {!!} 
+  { to      = to1 xs ys 
+  ; from    = from1 xs ys 
+  ; from∘to = from-to xs ys  
   ; to∘from = λ { ⟨ Pxs , Pys ⟩  → {! !} }
   }
+  where
+    to1      : ∀ { A : Set} {P : A → Set} (xs ys : List A) → All P (xs ++ ys) → (All P xs × All P ys)
+    to1 {A} {P} xs ys  =  _⇔_.to (All-++-⇔ {A} {P} xs ys)
+  
+    from1    : ∀ { A : Set} {P : A → Set} (xs ys : List A) → (All P xs × All P ys) → All P (xs ++ ys) 
+    from1 {A} {P} xs ys   = _⇔_.from (All-++-⇔ {A} {P} xs ys)
+    from-to : ∀ { A : Set} {P : A → Set} (xs ys : List A) ( Pxys : All P (xs ++ ys) )
+              →  from1 xs ys 
+                 (to1 xs ys Pxys)
+                 ≡ Pxys
+    from-to [] ys = λ Pxys → refl
+    from-to (x ∷ xs) ys (Px ∷ Pxs++ys) = {!
+            begin
+              from1 (x ∷ xs) ys (to1 (x ∷ xs) ys (Px ∷ Pxs++ys))
+            ≡⟨⟩
+              (Px ∷ Pxs++ys)
+            ∎ !} 
 ```
 
 #### Exercise `¬Any⇔All¬` (recommended)
