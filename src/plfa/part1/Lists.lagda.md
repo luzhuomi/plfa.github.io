@@ -1418,7 +1418,20 @@ Show that the equivalence `¬Any⇔All¬` can be extended to an isomorphism.
 Show that `All P xs` is isomorphic to `∀ x → x ∈ xs → P x`.
 
 ```agda
+open import Relation.Nullary using (contradiction) 
+a∉[] : ∀ { A : Set } {x : A} → x ∉ []
+a∉[] {A} ()
+
 -- You code goes here
+All-∀ : ∀ { A : Set } { P : A → Set } ( xs : List A )
+  → All P xs ≃ (∀ x → x ∈ xs → P x)
+All-∀  {A} {P} [] =
+  record
+    { to = λ allP[] a a∈[] → Relation.Nullary.contradiction a∈[] a∉[] 
+    ; from = λ x → []
+    ; from∘to = λ {[] → refl}
+    ; to∘from = λ y → {!!} 
+    }
 ```
 
 
