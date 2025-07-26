@@ -1379,6 +1379,38 @@ Show that the equivalence `¬Any⇔All¬` can be extended to an isomorphism.
 
 ```agda
 -- Your code goes here
+¬Any≃All¬ : ∀ {A : Set} { P : A → Set } ( xs : List A )
+            → (¬_ ∘ Any P) xs ≃ All (¬_ ∘ P) xs
+¬Any≃All¬ {A} {P} xs =
+  record
+    { to      = to1 {A} {P} xs
+    ; from    = from1 {A} {P} xs
+    ; from∘to = from-to {A} {P} xs
+    ; to∘from = to-from {A} {P} xs
+    }
+    where
+      to1 : ∀ {A : Set} { P : A → Set } ( xs : List A )
+            → (¬_ ∘ Any P) xs → All (¬_ ∘ P) xs
+      to1 {A} {P} xs  = _⇔_.to (¬Any⇔All¬ {A} {P} xs)
+      from1 : {A : Set} { P : A → Set } ( xs : List A )
+            → All (¬_ ∘ P) xs → (¬_ ∘ Any P) xs
+      from1 {A} {P} xs = _⇔_.from (¬Any⇔All¬ {A} {P} xs)
+      from-to : ∀ {A : Set} { P : A → Set } ( xs : List A )
+            → (x : (¬_ ∘ Any P) xs) → from1 xs (to1 xs x) ≡ x
+      from-to [] ¬anyPx[] = refl
+      from-to (x ∷ xs) ¬anyPxxs = refl
+      to-from  : ∀ {A : Set} { P : A → Set } ( xs : List A )
+            → (x : All (¬_ ∘ P) xs) → to1 xs (from1 xs x) ≡ x
+      to-from [] [] = refl
+      to-from (x ∷ xs) ( ¬Px ∷ all¬Pxs ) = 
+        begin
+          to1 (x ∷ xs) (from1 (x ∷ xs) (¬Px ∷ all¬Pxs))
+        ≡⟨⟩
+          ¬Px ∷ (to1 xs (from1 xs all¬Pxs))
+        ≡⟨ cong ( ¬Px ∷_ ) ( to-from xs all¬Pxs )   ⟩ 
+          ¬Px ∷ all¬Pxs
+        ∎ 
+
 ```
 
 #### Exercise `All-∀` (practice)
