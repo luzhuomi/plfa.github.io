@@ -1343,6 +1343,34 @@ If so, prove; if not, explain why.
 
 ```agda
 -- Your code goes here
+-- open import  Data.Irrelevant using ([_])
+¬Any⇔All¬ : ∀ {A : Set} { P : A → Set } ( xs : List A )
+            → (¬_ ∘ Any P) xs ⇔ All (¬_ ∘ P) xs
+¬Any⇔All¬ {A} {P} [] =
+  record
+    { to = λ ¬anyP[] → []
+    ; from = λ { all¬P[] () } 
+    }
+¬Any⇔All¬ {A} {P} ( x ∷ xs ) =
+  record
+    { to = λ { ¬anyPxxs → (λ px →  (¬anyPxxs (here px))) ∷  (_⇔_.to ( ¬Any⇔All¬ {A} {P} xs) (λ anyPxs → (¬anyPxxs (there anyPxs) ) ) ) }
+    ; from = λ { (¬px ∷ all¬pxs) (here px) → (¬px px)
+               ; (¬px ∷ all¬pxs) (there pxs) →  _⇔_.from ( ¬Any⇔All¬ {A} {P} xs) all¬pxs pxs
+               } 
+    }
+
+
+
+-- trying to prove (¬_ ∘ All P) xs ⇔ Any (¬_ ∘ P) xs
+{-
+¬All⇔Any¬ : ∀ {A : Set} { P : A → Set } ( xs : List A )
+           → (¬_ ∘ All P) xs ⇔ Any (¬_ ∘ P) xs
+¬All⇔Any¬ {A} {P} [] =
+  record
+    { to = λ ¬allP[] → {!!} -- it is supposed to be Any (¬_ ∘ P) [];  can't find the evidence, coz not here nor there.
+    ; from = {!!}
+    }           
+-}
 ```
 
 #### Exercise `¬Any≃All¬` (stretch)
