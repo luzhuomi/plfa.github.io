@@ -1435,9 +1435,9 @@ All-∀  {A} {P} [] =
 All-∀  {A} {P} ( x ∷ xs ) =
   record
     { to      = to1 {A} {P} 
-    ; from    = {!!}
-    ; from∘to = {!!} 
-    ; to∘from = {!!} 
+    ; from    = from1 {A} {P}
+    ; from∘to = from-to {A} {P}
+    ; to∘from = to-from {A} {P} 
     }
   where
     to1 : ∀ { A : Set } { P : A → Set }  { x : A } { xs : List A }
@@ -1445,8 +1445,25 @@ All-∀  {A} {P} ( x ∷ xs ) =
     to1 {A} {P} {x} {xs} = λ { (Px ∷ allPxs) y (here refl) → Px
                              ; (Px ∷ allPxs) y (there any-y≡xs) → ( _≃_.to (All-∀ {A} {P} xs) allPxs y any-y≡xs)
                              }
-                             
-
+    from1 : ∀ { A : Set } { P : A → Set }  { x : A } { xs : List A }
+          → (∀ (y : A) → y ∈ x ∷ xs → P y) → All P (x ∷ xs)
+    from1 {A} {P} {x} {xs} =
+      λ y∈xxs→Py → y∈xxs→Py x (here refl) ∷ -- goal P x
+                    (_≃_.from (All-∀ {A} {P} xs) (λ a a∈xs →  (y∈xxs→Py a (there a∈xs))) )  -- goal All P xxs
+    from-to : ∀ { A : Set } { P : A → Set } { x : A } { xs : List A }
+          → ( y : All P ( x ∷ xs )) → from1 (to1 y) ≡ y
+    from-to {A} {P} {x} {xs} = λ { (Px ∷ Pxs) → 
+                                   begin
+                                     from1 (to1 (Px ∷ Pxs))
+                                   ≡⟨⟩
+                                     Px ∷ ( _≃_.from (All-∀ {A} {P} xs) ( _≃_.to (All-∀ {A} {P} xs) Pxs))
+                                   ≡⟨ cong (Px ∷_ ) ( _≃_.from∘to (All-∀ {A} {P} xs) Pxs) ⟩  
+                                     Px ∷ Pxs 
+                                   ∎
+                                 }
+    to-from : ∀ { A : Set } { P : A → Set } { x : A } { xs : List A }
+          →  (f : ∀ (z : A) → z ∈ x ∷ xs → P z) → to1 (from1 f) ≡ f
+    to-from {A} {P} {x} {xs} = λ f →  ∀-extensionality (λ a → {!!} ) 
 ```
 
 
