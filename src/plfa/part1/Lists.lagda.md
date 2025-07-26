@@ -1427,11 +1427,26 @@ All-∀ : ∀ { A : Set } { P : A → Set } ( xs : List A )
   → All P xs ≃ (∀ x → x ∈ xs → P x)
 All-∀  {A} {P} [] =
   record
-    { to = λ allP[] a a∈[] → Relation.Nullary.contradiction a∈[] a∉[] 
-    ; from = λ x → []
+    { to      = λ allP[] a a∈[] → Relation.Nullary.contradiction a∈[] a∉[] 
+    ; from    = λ x → []
     ; from∘to = λ {[] → refl}
-    ; to∘from = λ y → {!!} 
+    ; to∘from = λ { ∀x∈[]→Px → ( ∀-extensionality (λ a → extensionality λ() )) }
     }
+All-∀  {A} {P} ( x ∷ xs ) =
+  record
+    { to      = to1 {A} {P} 
+    ; from    = {!!}
+    ; from∘to = {!!} 
+    ; to∘from = {!!} 
+    }
+  where
+    to1 : ∀ { A : Set } { P : A → Set }  { x : A } { xs : List A }
+          → All P (x ∷ xs) → ∀ (y : A) → y ∈ x ∷ xs → P y
+    to1 {A} {P} {x} {xs} = λ { (Px ∷ allPxs) y (here refl) → Px
+                             ; (Px ∷ allPxs) y (there any-y≡xs) → ( _≃_.to (All-∀ {A} {P} xs) allPxs y any-y≡xs)
+                             }
+                             
+
 ```
 
 
