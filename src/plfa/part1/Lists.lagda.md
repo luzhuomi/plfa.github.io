@@ -1595,6 +1595,12 @@ for some element of a list.  Give their definitions.
 
 ```agda
 -- Your code goes here
+Any? : ∀ {A : Set} {P : A → Set} → Decidable P → Decidable (Any P)
+Any? P? []                                 = no λ()
+Any? P? (x ∷ xs) with P? x   | Any? P? xs
+...                 | yes Px | _           = yes (here Px)
+...                 | no ¬Px | yes Pxs     = yes (there Pxs)
+...                 | no ¬Px | no ¬Pxs     = no λ { (here Px) → ¬Px Px ; (there Pxs) → ¬Pxs Pxs }
 ```
 
 
@@ -1641,6 +1647,12 @@ with their corresponding proofs.
 
 ```agda
 -- Your code goes here
+split : ∀ {A : Set} {P : A → Set} (P? : Decidable P) (zs : List A)
+      → ∃[ xs ] ∃[ ys ] ( merge xs ys zs × All P xs × All (¬_ ∘ P) ys )
+split {A} {P} P? []       = ⟨ [] , ⟨ [] , ⟨ [] , ⟨ [] , [] ⟩ ⟩ ⟩ ⟩
+split {A} {P} P? (z ∷ zs) with P? z   | split P? zs 
+...                          | yes Pz | ⟨ xs , ⟨ ys , ⟨ merge-xs-ys-zs , ⟨ allPxs , all¬Pys ⟩ ⟩ ⟩ ⟩ = ⟨  z ∷ xs , ⟨ ys , ⟨ left-∷ merge-xs-ys-zs  , ⟨ (Pz ∷ allPxs) , all¬Pys ⟩ ⟩ ⟩ ⟩
+...                          | no ¬Pz | ⟨ xs , ⟨ ys , ⟨ merge-xs-ys-zs , ⟨ allPxs , all¬Pys ⟩ ⟩ ⟩ ⟩ = ⟨ xs , ⟨  z ∷ ys , ⟨ right-∷ merge-xs-ys-zs , ⟨ allPxs , ¬Pz ∷ all¬Pys ⟩ ⟩ ⟩ ⟩
 ```
 
 ## Standard Library
