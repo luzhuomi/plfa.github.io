@@ -1475,11 +1475,12 @@ All-∀  {A} {P} ( x ∷ xs ) =
                                                             to1 (from1 f) a (there a∈xs)
                                                           ≡⟨⟩
                                                              (_≃_.to (All-∀ {A} {P} xs) (_≃_.from (All-∀ {A} {P} xs) g)) a a∈xs
-                                                          ≡⟨⟩ 
+                                                          ≡⟨ cong (λ j → j a a∈xs ) (_≃_.to∘from (All-∀ {A} {P} xs) g) ⟩
+                                                             g a a∈xs 
+                                                          ≡⟨⟩
                                                             f a (there a∈xs)
                                                           ∎ 
-                                                   
-                                                     -- (_≃_.to∘from (All-∀ {A} {P} xs) (λ a a∈xs → ?))
+                                                  
                                                  }
                                 )
                          )
@@ -1493,6 +1494,57 @@ Show that `Any P xs` is isomorphic to `∃[ x ] (x ∈ xs × P x)`.
 
 ```agda
 -- You code goes here
+Any-∃ : ∀ { A : Set } { P : A → Set } ( xs : List A )
+  → Any P xs ≃ (∃[ x ] (x ∈ xs × P x))
+Any-∃ {A} {P} [] =
+  record
+    { to = λ()
+    ; from = λ()
+    ; from∘to = λ()
+    ; to∘from = λ()
+    }  
+Any-∃ {A} {P} ( x ∷ xs ) =
+  record
+    { to = to1 
+    ; from = from1
+    ; from∘to = from-to
+    ; to∘from = to-from
+    }
+    where
+     to1 : ∀ { A : Set } { P : A → Set } { x : A } { xs : List A }
+         → Any P (x ∷ xs) → (∃[ y ] (y ∈ (x ∷ xs) × P y))
+     to1 {A} {P} {x} {xs} (here Px) = ⟨  x , ⟨ (here refl) , Px ⟩ ⟩
+     to1 {A} {P} {x} {xs} (there anyPxs) with (_≃_.to (Any-∃ {A} {P} xs) anyPxs)
+     ... | ⟨ y , ⟨ y∈xs , Py ⟩ ⟩ = ⟨ y , ⟨ there y∈xs , Py ⟩ ⟩ 
+     from1 : ∀ { A : Set } { P : A → Set } { x : A } { xs : List A }
+         → (∃[ y ] (y ∈ (x ∷ xs) × P y)) → Any P (x ∷ xs)
+     from1 {A} {P} {x} {xs} ⟨ y , ⟨ here refl , Py ⟩ ⟩ = here Py
+     from1 {A} {P} {x} {xs} ⟨ y , ⟨ there y∈xs , Py ⟩ ⟩ with (_≃_.from (Any-∃ {A} {P} xs) ⟨ y , ⟨ y∈xs , Py ⟩ ⟩)
+     ... | anyPxs = there anyPxs
+     from-to : ∀ { A : Set } { P : A → Set } { x : A } { xs : List A }
+             →  (x₁ : Any P (x ∷ xs)) → from1 (to1 x₁) ≡ x₁
+     from-to {A} {P} {x} {xs} (here Px)   = refl
+     from-to {A} {P} {x} {xs} (there Pxs) =
+       begin
+         from1 (to1 (there Pxs))
+       ≡⟨⟩
+         there ( _≃_.from (Any-∃ xs) (_≃_.to (Any-∃ xs) Pxs))
+       ≡⟨ cong there (_≃_.from∘to  (Any-∃ xs) Pxs)  ⟩
+         there Pxs
+       ∎
+     to-from : ∀ { A : Set } { P : A → Set } { x : A } { xs : List A }
+             → (z : ∃[ y ] (y ∈ x ∷ xs × P y)) → to1 (from1 z) ≡ z
+     to-from {A} {P} {x} {xs} ⟨ y , ⟨ here refl , Py  ⟩ ⟩  = refl
+
+     to-from {A} {P} {x} {xs} ⟨ y , ⟨ there y∈xs , Py  ⟩ ⟩  = 
+       begin
+         to1 (from1 ⟨ y , ⟨ there y∈xs , Py ⟩ ⟩)
+       ≡⟨⟩
+         let w = _≃_.to (Any-∃ xs) (_≃_.from (Any-∃ xs) ⟨ y , ⟨ y∈xs , Py ⟩ ⟩)
+         in ⟨ proj₁ w , ⟨ there ((proj₁ ∘ proj₂) w) , (proj₂ ∘ proj₂) w ⟩ ⟩  
+       ≡⟨ cong (λ u →  let w = u in ⟨ proj₁ w , ⟨ there ((proj₁ ∘ proj₂) w) , (proj₂ ∘ proj₂) w ⟩ ⟩   ) (_≃_.to∘from (Any-∃ xs) ⟨ y , ⟨ y∈xs , Py ⟩ ⟩ )  ⟩ 
+         ⟨ y , ⟨ there y∈xs , Py  ⟩ ⟩
+       ∎ 
 ```
 
 
