@@ -1474,7 +1474,7 @@ All-∀  {A} {P} ( x ∷ xs ) =
                                                           begin
                                                             to1 (from1 f) a (there a∈xs)
                                                           ≡⟨⟩
-                                                             _≃_.to (All-∀ {A} {P} xs) (_≃_.from (All-∀ {A} {P} xs) g) a a∈xs
+                                                             (_≃_.to (All-∀ {A} {P} xs) (_≃_.from (All-∀ {A} {P} xs) g)) a a∈xs
                                                           ≡⟨⟩ 
                                                             f a (there a∈xs)
                                                           ∎ 
