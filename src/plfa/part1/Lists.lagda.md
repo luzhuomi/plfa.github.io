@@ -1463,7 +1463,27 @@ All-∀  {A} {P} ( x ∷ xs ) =
                                  }
     to-from : ∀ { A : Set } { P : A → Set } { x : A } { xs : List A }
           →  (f : ∀ (z : A) → z ∈ x ∷ xs → P z) → to1 (from1 f) ≡ f
-    to-from {A} {P} {x} {xs} = λ f →  ∀-extensionality (λ a → {!!} ) 
+    to-from {A} {P} {x} {xs} = 
+      λ f → (
+        ∀-extensionality (λ a → (
+                                extensionality λ { (here refl)  → refl
+                                                 ; (there a∈xs) → 
+                                                          let g : ∀ (z₁ : A) → z₁ ∈ xs → P z₁
+                                                              g = λ z₁ → λ z₁∈xs → f z₁ (there (z₁∈xs))
+                                                          in 
+                                                          begin
+                                                            to1 (from1 f) a (there a∈xs)
+                                                          ≡⟨⟩
+                                                             _≃_.to (All-∀ {A} {P} xs) (_≃_.from (All-∀ {A} {P} xs) g) a a∈xs
+                                                          ≡⟨⟩ 
+                                                            f a (there a∈xs)
+                                                          ∎ 
+                                                   
+                                                     -- (_≃_.to∘from (All-∀ {A} {P} xs) (λ a a∈xs → ?))
+                                                 }
+                                )
+                         )
+      )
 ```
 
 
