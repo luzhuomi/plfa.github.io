@@ -1174,7 +1174,52 @@ for all `m`, `n`, and `p`.
   ≡⟨ *-comm (m ^ (suc p)) (m ^ (suc n)) ⟩      
     (m ^ (suc n)) * (m ^ (suc p))
   ∎
-    
+
+
+
+^-distribʳ-* :  ∀ (m n p : ℕ)
+  → (m * n) ^ p ≡ (m ^ p) * (n ^ p)
+^-distribʳ-* zero zero zero  = refl
+^-distribʳ-* zero zero (suc p)  = refl
+^-distribʳ-* zero (suc n) zero =  refl
+^-distribʳ-* zero (suc n) (suc p)  = refl
+^-distribʳ-* (suc m) zero zero  =  refl
+^-distribʳ-* (suc m) (suc n) zero = refl 
+^-distribʳ-* (suc m) zero (suc p) = 
+  begin
+    ((suc m) * zero) ^ (suc p)
+  ≡⟨ cong ( _^ (suc p)) (*-comm (suc m) zero) ⟩
+    zero ^ (suc p)
+  ≡⟨⟩
+    zero 
+  ≡⟨⟩
+    zero * ((suc m) ^ (suc p)) 
+  ≡⟨ *-comm zero ((suc m) ^ (suc p))  ⟩
+    ((suc m) ^ (suc p)) * zero
+  ≡⟨⟩
+    ((suc m) ^ (suc p)) * (zero ^ (suc p))
+  ∎ 
+^-distribʳ-* (suc m) (suc n) (suc p)  = 
+  begin
+    (suc m * suc n) * (suc m * suc n) ^ p
+  ≡⟨ cong ((suc m * suc n) *_ ) (^-distribʳ-* (suc m) (suc n) p) ⟩
+    ((suc m) * (suc n)) * (((suc m) ^ p) * ((suc n ) ^ p))
+  ≡⟨ *-assoc (suc m) (suc n) (((suc m) ^ p) * ((suc n ) ^ p)) ⟩ 
+    (suc m * (suc n * (((suc m) ^ p) * (suc n ) ^ p)))
+  ≡⟨ cong (λ x → (suc m) * x ) (sym (*-assoc (suc n) ((suc m) ^ p) ((suc n ) ^ p) )) ⟩
+    (suc m * ((((suc n) * (suc m) ^ p)) * ((suc n ) ^ p )) )
+  ≡⟨ cong (λ x →  suc m * ( x * (suc n ) ^ p ) ) (*-comm (suc n) ((suc m) ^ p)) ⟩
+    (suc m * ((((suc m) ^ p) * (suc n)) * ((suc n) ^ p )) )
+  ≡⟨ cong (λ x → (suc m) * x ) (*-assoc ((suc m) ^ p) (suc n) ((suc n) ^ p)) ⟩
+    (suc m * (((suc m) ^ p) * ((suc n) * ((suc n) ^ p ))) )
+  ≡⟨⟩
+    (suc m * (((suc m) ^ p) * ((suc n) ^ (suc p))) )
+  ≡⟨ sym (*-assoc (suc m) ((suc m) ^ p) ((suc n) ^ (suc p))) ⟩
+    ((suc m * ((suc m) ^ p)) * ((suc n) ^ (suc p))) 
+  ≡⟨⟩
+    (suc m) ^ (suc p) * (suc n) ^ (suc p) 
+  ∎ 
+
 
 ```
 
